@@ -1,5 +1,15 @@
 const { pool } = require('../db');
 
+async function findById(id) {
+  const result = await pool.query(
+    `SELECT id, username, email, created_at
+     FROM users
+     WHERE id = $1`,
+    [id]
+  );
+  return result.rows[0] || null;
+}
+
 async function findByEmail(email) {
   const result = await pool.query(
     `SELECT id, username, email, password, created_at
@@ -21,6 +31,7 @@ async function createUser({ username, email, password }) {
 }
 
 module.exports = {
+  findById,
   findByEmail,
   createUser,
 };

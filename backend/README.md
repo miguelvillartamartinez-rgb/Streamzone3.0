@@ -13,29 +13,28 @@ backend/
     ├── server.js
     ├── db.js
     ├── routes/
-    │   └── userRoutes.js
+    │   ├── userRoutes.js
+    │   ├── movieRoutes.js
+    │   ├── favoriteRoutes.js
+    │   └── watchLaterRoutes.js
     ├── controllers/
-    │   └── userController.js
-    └── models/
-        └── userModel.js
+    │   ├── userController.js
+    │   ├── movieController.js
+    │   ├── favoriteController.js
+    │   └── watchLaterController.js
+    ├── models/
+    │   ├── userModel.js
+    │   ├── movieModel.js
+    │   ├── favoriteModel.js
+    │   └── watchLaterModel.js
+    └── utils/
+        └── movieValidation.js
 ```
 
 ## Requisitos
 
 - Node.js 18 o superior
-- PostgreSQL en ejecución con la base `streamzone` creada (ver `database/README.md`)
-
-## Configuración
-
-1. Copia el archivo de entorno:
-
-```powershell
-Copy-Item .env.example .env
-```
-
-2. Edita `.env` con tus credenciales de PostgreSQL.
-
-3. Asegúrate de haber ejecutado `database/schema.sql` y `database/seed.sql`.
+- PostgreSQL en ejecución con la base `streamzone` (ver `database/README.md`)
 
 ## Instalación y arranque
 
@@ -45,46 +44,121 @@ npm install
 npm start
 ```
 
-Modo desarrollo (reinicio automático, Node 18+):
-
-```powershell
-npm run dev
-```
-
 El servidor queda en **http://localhost:4000**.
 
 ## Endpoints disponibles
 
-| Método | Ruta                    | Descripción              |
-|--------|-------------------------|--------------------------|
-| GET    | `/api/health`           | Estado de la API y BD    |
-| POST   | `/api/users/register`   | Registro de usuario      |
-| POST   | `/api/users/login`      | Inicio de sesión         |
+| Método | Ruta | Descripción |
+|--------|------|-------------|
+| GET | `/api/health` | Estado de la API y BD |
+| POST | `/api/users/register` | Registro |
+| POST | `/api/users/login` | Login |
+| GET | `/api/movies` | Listar películas guardadas |
+| POST | `/api/movies` | Crear o devolver película por `tmdb_id` |
+| GET | `/api/favorites/:userId` | Favoritos de un usuario (con datos de película) |
+| POST | `/api/favorites` | Añadir favorito |
+| DELETE | `/api/favorites/:id` | Eliminar favorito |
+| GET | `/api/watch-later/:userId` | Ver más tarde de un usuario |
+| POST | `/api/watch-later` | Añadir a ver más tarde |
+| DELETE | `/api/watch-later/:id` | Eliminar de ver más tarde |
 
-### Seguridad (Fase 3)
-
-- Las contraseñas se guardan y comparan en **texto plano** solo para simplificar el desarrollo del TFG.
-- **Mejora futura:** usar `bcrypt` para hashear al registrar y comparar al hacer login; añadir **JWT** para sesiones en fases posteriores.
+> Sin JWT en esta fase. El `user_id` se envía en el body o en la URL.
 
 ---
 
-## Probar con curl
+## Fase 4 — Probar películas, favoritos y ver más tarde
 
-### Health check
+Usuario de prueba del seed: **id = 1** (`admin@streamzone.com` / `admin123`).
 
-```bash
-curl http://localhost:4000/api/health
+### GET /api/movies
+
+```powershell
+Invoke-RestMethod -Uri "http://localhost:4000/api/movies"
 ```
 
-### Registro (`POST /api/users/register`)
+### POST /api/movies (crear o recuperar por tmdb_id)
 
-```bash
-curl -X POST http://localhost:4000/api/users/register ^
-  -H "Content-Type: application/json" ^
-  -d "{\"username\":\"demo\",\"email\":\"demo@streamzone.com\",\"password\":\"demo123\"}"
+```powershell
+Invoke-RestMethod -Method POST -Uri "http://localhost:4000/api/movies" `
+  -ContentType "application/json" `
+  -Body '{"tmdb_id":550,"title":"Fight Club","overview":"Un oficinista insomne...","poster_path":"/pB8BM7pdSp6B6Ih7QZ4DrFu3zm3.jpg","release_date":"1999-10-15"}'
 ```
 
-PowerShell (alternativa):
+### Añadir favorito (POST /api/favorites)
+
+Inserta la película en `movies` si no existe y crea la relación en `favorites`:
+
+```powershell
+Invoke-RestMethod -Method POST -Uri "http://localhost:4000/api/favorites" `
+  -ContentType "application/json" `
+  -Body '{"user_id":1,"tmdb_id":550,"title":"Fight Club","overview":"Un oficinista insomne...","poster_path":"/pB8BM7pdSp6B6Ih7QZ4DrFu3zm3.jpg","release_date":"1999-10-15"}'
+```
+
+### Listar favoritos (GET /api/favorites/:userId)
+
+```powershell
+Invoke-RestMethod -Uri "http://localhost:4000/api/favorites/1"
+```
+
+Respuesta esperada (cada favorito incluye el objeto `movie`):
+
+```json
+{
+  "success": true,
+  "user_id": 1,
+  "count": 3,
+  "favorites": [
+    {
+      "id": 1,
+      "user_id": 1,
+      "created_at": "...",
+      "movie": {
+        "id": 1,
+        "tmdb_id": 11,
+        "title": "Star Wars: Episodio IV...",
+        "overview": "...",
+        "poster_path": "/2l05cFWJacyqGzSnHRDBok20i10.jpg",
+        "release_date": "1977-05-25",
+        "created_at": "..."
+      }
+    }
+  ]
+}
+```
+
+### Eliminar favorito (DELETE /api/favorites/:id)
+
+Sustituye `1` por el `id` del favorito (no el id de la película):
+
+```powershell
+Invoke-RestMethod -Method DELETE -Uri "http://localhost:4000/api/favorites/1"
+```
+
+### Añadir a ver más tarde (POST /api/watch-later)
+
+```powershell
+Invoke-RestMethod -Method POST -Uri "http://localhost:4000/api/watch-later" `
+  -ContentType "application/json" `
+  -Body '{"user_id":1,"tmdb_id":603,"title":"The Matrix","overview":"Un hacker descubre la verdad...","poster_path":"/f89U3ADr1oiN1QxkZbzeJC8a0k.jpg","release_date":"1999-03-31"}'
+```
+
+### Listar ver más tarde (GET /api/watch-later/:userId)
+
+```powershell
+Invoke-RestMethod -Uri "http://localhost:4000/api/watch-later/1"
+```
+
+### Eliminar de ver más tarde (DELETE /api/watch-later/:id)
+
+```powershell
+Invoke-RestMethod -Method DELETE -Uri "http://localhost:4000/api/watch-later/1"
+```
+
+---
+
+## Fase 3 — Usuarios
+
+### Registro
 
 ```powershell
 Invoke-RestMethod -Method POST -Uri "http://localhost:4000/api/users/register" `
@@ -92,32 +166,7 @@ Invoke-RestMethod -Method POST -Uri "http://localhost:4000/api/users/register" `
   -Body '{"username":"demo","email":"demo@streamzone.com","password":"demo123"}'
 ```
 
-Respuesta esperada (201):
-
-```json
-{
-  "success": true,
-  "message": "Usuario registrado correctamente",
-  "user": {
-    "id": 2,
-    "username": "demo",
-    "email": "demo@streamzone.com",
-    "created_at": "2026-05-24T..."
-  }
-}
-```
-
-### Login (`POST /api/users/login`)
-
-Con el usuario del seed (`admin@streamzone.com` / `admin123`):
-
-```bash
-curl -X POST http://localhost:4000/api/users/login ^
-  -H "Content-Type: application/json" ^
-  -d "{\"email\":\"admin@streamzone.com\",\"password\":\"admin123\"}"
-```
-
-PowerShell:
+### Login
 
 ```powershell
 Invoke-RestMethod -Method POST -Uri "http://localhost:4000/api/users/login" `
@@ -125,76 +174,34 @@ Invoke-RestMethod -Method POST -Uri "http://localhost:4000/api/users/login" `
   -Body '{"email":"admin@streamzone.com","password":"admin123"}'
 ```
 
-Respuesta esperada (200):
+### Seguridad
 
-```json
-{
-  "success": true,
-  "message": "Inicio de sesión correcto",
-  "user": {
-    "id": 1,
-    "username": "admin",
-    "email": "admin@streamzone.com",
-    "created_at": "..."
-  }
-}
-```
-
-### Errores habituales
-
-**Campos vacíos (400):**
-
-```json
-{ "success": false, "message": "email y password son obligatorios" }
-```
-
-**Email ya registrado (409):**
-
-```json
-{ "success": false, "message": "El email ya está registrado" }
-```
-
-**Credenciales incorrectas (401):**
-
-```json
-{ "success": false, "message": "Email o contraseña incorrectos" }
-```
+- Contraseñas en **texto plano** solo para desarrollo.
+- **Mejora futura:** `bcrypt` + **JWT**.
 
 ---
 
-## Probar con Postman
+## Códigos de error habituales
 
-1. Crea una colección **StreamZone API**.
-2. Variable de entorno: `baseUrl` = `http://localhost:4000`.
-3. **Register:** POST `{{baseUrl}}/api/users/register`  
-   Body → raw → JSON:
-   ```json
-   {
-     "username": "demo",
-     "email": "demo@streamzone.com",
-     "password": "demo123"
-   }
-   ```
-4. **Login:** POST `{{baseUrl}}/api/users/login`  
-   Body → raw → JSON:
-   ```json
-   {
-     "email": "admin@streamzone.com",
-     "password": "admin123"
-   }
-   ```
+| Código | Situación |
+|--------|-----------|
+| 400 | Campos obligatorios inválidos o `userId` incorrecto |
+| 401 | Login incorrecto |
+| 404 | Usuario, favorito o watch_later no encontrado |
+| 409 | Email ya registrado |
+| 500 | Error interno del servidor |
 
 ## Integración con Angular
 
-El frontend (`Streamzone3.0-main`) tiene un proxy hacia `http://localhost:4000` en `proxy.conf.json`. En fases posteriores se conectarán login y registro desde Angular.
+El frontend (`Streamzone3.0-main`) usa proxy hacia `http://localhost:4000`. En la siguiente fase se conectarán estos endpoints desde Angular.
 
 ## Variables de entorno
 
-| Variable       | Descripción              |
-|----------------|--------------------------|
-| `PORT`         | Puerto del servidor API  |
-| `DB_HOST`      | Host de PostgreSQL       |
-| `DB_PORT`      | Puerto de PostgreSQL     |
-| `DB_NAME`      | Nombre de la base de datos |
-| `DB_USER`      | Usuario de PostgreSQL    |
-| `DB_PASSWORD`  | Contraseña de PostgreSQL |
+| Variable | Descripción |
+|----------|-------------|
+| `PORT` | Puerto del servidor |
+| `DB_HOST` | Host PostgreSQL |
+| `DB_PORT` | Puerto PostgreSQL |
+| `DB_NAME` | Base de datos (`streamzone`) |
+| `DB_USER` | Usuario PostgreSQL |
+| `DB_PASSWORD` | Contraseña PostgreSQL |

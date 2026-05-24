@@ -4,6 +4,9 @@ const express = require('express');
 const cors = require('cors');
 const { testConnection } = require('./db');
 const userRoutes = require('./routes/userRoutes');
+const movieRoutes = require('./routes/movieRoutes');
+const favoriteRoutes = require('./routes/favoriteRoutes');
+const watchLaterRoutes = require('./routes/watchLaterRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -17,6 +20,9 @@ app.use(
 app.use(express.json());
 
 app.use('/api/users', userRoutes);
+app.use('/api/movies', movieRoutes);
+app.use('/api/favorites', favoriteRoutes);
+app.use('/api/watch-later', watchLaterRoutes);
 
 app.get('/api/health', async (req, res) => {
   let database = 'disconnected';
