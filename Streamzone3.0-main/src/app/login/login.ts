@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -19,30 +19,34 @@ export class Login {
 
   constructor(
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
   async onSubmit() {
     if (!this.email || !this.password) {
       this.errorMessage = 'Por favor, completa todos los campos';
+      this.cdr.detectChanges();
       return;
     }
 
     this.loading = true;
     this.errorMessage = '';
+    this.cdr.detectChanges();
 
     try {
-      const success = await this.authService.login(this.email, this.password);
-      if (success) {
+      const result = await this.authService.login(this.email, this.password);
+      if (result.success) {
         this.router.navigate(['/home']);
       } else {
-        this.errorMessage = 'Correo o contraseña incorrectos';
+        this.errorMessage = result.message || 'Email o contraseña incorrectos';
       }
     } catch (error) {
       this.errorMessage = 'Error al conectar con el servidor. Intenta nuevamente.';
-      console.error('Error en login:', error);
+      console.error('[StreamZone] Error en login:', error);
     } finally {
       this.loading = false;
+      this.cdr.detectChanges();
     }
   }
 }

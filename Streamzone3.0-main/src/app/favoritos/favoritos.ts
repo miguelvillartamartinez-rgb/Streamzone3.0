@@ -1,10 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { afterNextRender, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { CapitalizePipe } from '../pipes';
 import { AuthService } from '../auth';
 import { FavoritesApiService } from '../services/favorites-api.service';
-import { buildPosterUrl } from '../services/api-movie.helper';
+import { mapFavoriteToPelicula, PeliculaListaApi } from '../services/api-list.mapper';
 
 interface PeliculaFavorita {
   id: number;
@@ -21,18 +21,21 @@ interface PeliculaFavorita {
   styleUrls: ['./favoritos.css']
 })
 export class Favoritos implements OnInit {
-  // Fallback temporal: detalle de películas TMDB en localStorage si falla la API
-  private readonly API_FAVORITOS_DATA_KEY = 'apiFavoritosData';
-
   peliculasStarWars: PeliculaFavorita[] = [];
   peliculasTransformers: PeliculaFavorita[] = [];
   peliculasApi: PeliculaFavorita[] = [];
+  errorApi: string = '';
 
   constructor(
     private router: Router,
     private authService: AuthService,
-    private favoritesApi: FavoritesApiService
-  ) {}
+    private favoritesApi: FavoritesApiService,
+    private cdr: ChangeDetectorRef
+  ) {
+    afterNextRender(() => {
+      this.cargarFavoritosApiDesdeBackend();
+    });
+  }
 
   nombresStarWars: string[] = [
     'Star Wars: Episodio I - La Amenaza Fantasma',
@@ -58,10 +61,8 @@ export class Favoritos implements OnInit {
   ngOnInit() {
     this.cargarFavoritosStarWars();
     this.cargarFavoritosTransformers();
-    this.cargarFavoritosApiDesdeBackend();
   }
 
-  /** Catálogo local (localStorage) — sin tmdb_id en backend */
   cargarFavoritosStarWars() {
     this.peliculasStarWars = [];
     const favoritosStr = localStorage.getItem('starWarsFavoritos');
@@ -91,35 +92,33 @@ export class Favoritos implements OnInit {
   }
 
   cargarFavoritosApiDesdeBackend() {
+    const user = this.authService.getUser();
     const userId = this.authService.getUserId();
+    console.log('Usuario actual:', user);
+
     if (!userId) {
-      this.cargarFavoritosApiLocal();
+      this.peliculasApi = [];
+      this.errorApi = 'Inicia sesión para ver tus favoritos de TMDB.';
+      this.cdr.detectChanges();
       return;
     }
 
     this.favoritesApi.getByUserId(userId).subscribe({
       next: (response) => {
-        this.peliculasApi = response.favorites.map((fav) => ({
-          id: fav.id,
-          nombre: fav.movie.title,
-          imagen: buildPosterUrl(fav.movie.poster_path),
-          origen: 'api',
-        }));
+        const favorites = (response.favorites ?? []).map(mapFavoriteToPelicula);
+        console.log('Favoritos cargados:', favorites);
+
+        this.peliculasApi = favorites.map((f) => this.toPeliculaFavorita(f));
+        this.errorApi = '';
+        this.cdr.detectChanges();
       },
       error: (error) => {
-        console.warn('Error al cargar favoritos desde API. Usando localStorage.', error);
-        this.cargarFavoritosApiLocal();
+        console.error('[StreamZone] Error al cargar favoritos:', error);
+        this.peliculasApi = [];
+        this.errorApi = 'No se pudieron cargar los favoritos desde el servidor.';
+        this.cdr.detectChanges();
       },
     });
-  }
-
-  /** Fallback temporal si el backend no responde */
-  private cargarFavoritosApiLocal() {
-    const favoritosApi = this.obtenerArrayDesdeStorage<PeliculaFavorita>(this.API_FAVORITOS_DATA_KEY);
-    this.peliculasApi = favoritosApi.map((pelicula) => ({
-      ...pelicula,
-      origen: 'api',
-    }));
   }
 
   eliminarFavorito(id: number) {
@@ -129,6 +128,7 @@ export class Favoritos implements OnInit {
       const nuevosFavoritos = favoritosArray.filter(favId => favId !== id);
       localStorage.setItem('starWarsFavoritos', JSON.stringify(nuevosFavoritos));
       this.cargarFavoritosStarWars();
+      this.cdr.detectChanges();
     }
   }
 
@@ -139,6 +139,7 @@ export class Favoritos implements OnInit {
       const nuevosFavoritos = favoritosArray.filter(favId => favId !== id);
       localStorage.setItem('transformersFavoritos', JSON.stringify(nuevosFavoritos));
       this.cargarFavoritosTransformers();
+      this.cdr.detectChanges();
     }
   }
 
@@ -146,16 +147,9 @@ export class Favoritos implements OnInit {
     this.favoritesApi.delete(favoriteId).subscribe({
       next: () => this.cargarFavoritosApiDesdeBackend(),
       error: (error) => {
-        console.warn('Error al eliminar favorito en API. Fallback localStorage.', error);
-        const favoritosIds = this.obtenerArrayDesdeStorage<number>('apiFavoritos');
-        const nuevosIds = favoritosIds.filter((favId) => favId !== favoriteId);
-        localStorage.setItem('apiFavoritos', JSON.stringify(nuevosIds));
-
-        const detalle = this.obtenerArrayDesdeStorage<PeliculaFavorita>(this.API_FAVORITOS_DATA_KEY);
-        const nuevoDetalle = detalle.filter((pelicula) => pelicula.id !== favoriteId);
-        localStorage.setItem(this.API_FAVORITOS_DATA_KEY, JSON.stringify(nuevoDetalle));
-
-        this.cargarFavoritosApiLocal();
+        console.error('[StreamZone] Error al eliminar favorito:', error);
+        alert('No se pudo eliminar el favorito.');
+        this.cdr.detectChanges();
       },
     });
   }
@@ -169,17 +163,12 @@ export class Favoritos implements OnInit {
     img.src = 'assets/logoStreamZone.png';
   }
 
-  private obtenerArrayDesdeStorage<T>(key: string): T[] {
-    const valor = localStorage.getItem(key);
-    if (!valor) {
-      return [];
-    }
-
-    try {
-      const parsed = JSON.parse(valor);
-      return Array.isArray(parsed) ? (parsed as T[]) : [];
-    } catch {
-      return [];
-    }
+  private toPeliculaFavorita(item: PeliculaListaApi): PeliculaFavorita {
+    return {
+      id: item.id,
+      nombre: item.nombre,
+      imagen: item.imagen,
+      origen: 'api',
+    };
   }
 }

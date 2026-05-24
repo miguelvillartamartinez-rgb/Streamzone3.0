@@ -1,8 +1,14 @@
 import { Injectable, PLATFORM_ID, inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { BehaviorSubject, firstValueFrom } from 'rxjs';
+import { BehaviorSubject, firstValueFrom, of, throwError } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 import { UserApiService } from './services/user-api.service';
 import { SessionUser } from './models/backend-api.models';
+
+export interface LoginResult {
+  success: boolean;
+  message?: string;
+}
 
 @Injectable({
   providedIn: 'root',
@@ -15,23 +21,37 @@ export class AuthService {
 
   constructor(private userApi: UserApiService) {}
 
-  login(email: string, password: string): Promise<boolean> {
-    return firstValueFrom(this.userApi.login(email, password))
-      .then((response) => {
-        if (response.success && response.user) {
-          this.saveSession(response.user);
-          this.isAuthenticatedSubject.next(true);
-          return true;
-        }
+  login(email: string, password: string): Promise<LoginResult> {
+    return firstValueFrom(
+      this.userApi.login(email, password).pipe(
+        map((response) => {
+          if (response.success && response.user) {
+            this.saveSession(response.user);
+            this.isAuthenticatedSubject.next(true);
+            return { success: true };
+          }
 
-        this.isAuthenticatedSubject.next(false);
-        return false;
-      })
-      .catch((error) => {
-        console.error('Error en login:', error);
-        this.isAuthenticatedSubject.next(false);
-        throw error;
-      });
+          this.isAuthenticatedSubject.next(false);
+          return {
+            success: false,
+            message: response.message || 'Email o contraseña incorrectos',
+          };
+        }),
+        catchError((error) => {
+          console.error('[StreamZone] Error en login:', error);
+          this.isAuthenticatedSubject.next(false);
+
+          if (error?.status === 401) {
+            return of({
+              success: false,
+              message: error?.error?.message || 'Email o contraseña incorrectos',
+            });
+          }
+
+          return throwError(() => error);
+        })
+      )
+    );
   }
 
   logout(): void {
@@ -64,7 +84,13 @@ export class AuthService {
   }
 
   getUserId(): number | null {
-    return this.getUser()?.id ?? null;
+    const user = this.getUser();
+    if (!user || user.id === undefined || user.id === null) {
+      return null;
+    }
+
+    const id = Number(user.id);
+    return Number.isInteger(id) && id > 0 ? id : null;
   }
 
   private saveSession(user: SessionUser): void {

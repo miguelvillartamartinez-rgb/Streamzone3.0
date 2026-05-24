@@ -37,6 +37,8 @@
     </div>
   </div>
 
+  <p *ngIf="errorApi" class="mensaje-subtitulo">{{ errorApi }}</p>
+
   <div class="starwars-section" *ngIf="peliculasApi.length > 0">
     <h2 class="section-title">🎬 Películas de API marcadas como favoritas</h2>
     <div class="starwars-grid">

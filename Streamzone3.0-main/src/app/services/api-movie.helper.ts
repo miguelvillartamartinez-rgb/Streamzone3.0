@@ -19,28 +19,30 @@ export function extractPosterPath(imagen: string): string | null {
     return null;
   }
 
-  if (imagen.includes('image.tmdb.org')) {
-    return imagen.replace(API_CONFIG.TMDB_IMAGE_BASE_URL, '');
+  const tmdbMatch = imagen.match(/image\.tmdb\.org\/t\/p\/w\d+(\/.+)$/);
+  if (tmdbMatch?.[1]) {
+    return tmdbMatch[1];
   }
 
-  return imagen;
+  if (imagen.startsWith('/')) {
+    return imagen;
+  }
+
+  return null;
 }
 
 export function toAddMovieListPayload(
   userId: number,
   pelicula: PeliculaTransformada
 ): AddMovieListPayload {
-  const releaseDate =
-    pelicula.fechaLanzamiento && pelicula.fechaLanzamiento !== 'Fecha no disponible'
-      ? pelicula.fechaLanzamiento
-      : null;
+  const posterPath = pelicula.poster_path ?? extractPosterPath(pelicula.imagen);
 
   return {
-    user_id: userId,
-    tmdb_id: pelicula.id,
-    title: pelicula.nombre,
-    overview: pelicula.descripcion,
-    poster_path: extractPosterPath(pelicula.imagen),
-    release_date: releaseDate,
+    user_id: Number(userId),
+    tmdb_id: Number(pelicula.id),
+    title: pelicula.nombre?.trim() || 'Sin título',
+    overview: pelicula.descripcion ?? '',
+    poster_path: posterPath,
+    release_date: pelicula.release_date,
   };
 }

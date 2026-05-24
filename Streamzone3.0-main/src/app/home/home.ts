@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { afterNextRender, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { RouterLink, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -10,12 +10,6 @@ import { WatchLaterApiService } from '../services/watch-later-api.service';
 import { toAddMovieListPayload } from '../services/api-movie.helper';
 import { SessionUser } from '../models/backend-api.models';
 
-interface PeliculaGuardadaApi {
-  id: number;
-  nombre: string;
-  imagen: string;
-}
-
 @Component({
   selector: 'app-home',
   standalone: true,
@@ -24,12 +18,6 @@ interface PeliculaGuardadaApi {
   styleUrls: ['./home.css', '../app.css']
 })
 export class Home implements OnInit {
-  // Fallback temporal: catálogo local Star Wars / Transformers sin tmdb_id en backend
-  private readonly API_FAVORITOS_KEY = 'apiFavoritos';
-  private readonly API_VER_MAS_TARDE_KEY = 'apiVerMasTarde';
-  private readonly API_FAVORITOS_DATA_KEY = 'apiFavoritosData';
-  private readonly API_VER_MAS_TARDE_DATA_KEY = 'apiVerMasTardeData';
-
   user: SessionUser | null = null;
   terminoBusqueda: string = '';
   imagenesSt: number[] = [1, 2, 3, 4, 5, 6, 7, 8, 9];
@@ -79,15 +67,20 @@ export class Home implements OnInit {
     private router: Router,
     private peliculasApi: PeliculasApiService,
     private favoritesApi: FavoritesApiService,
-    private watchLaterApi: WatchLaterApiService
-  ) {}
+    private watchLaterApi: WatchLaterApiService,
+    private cdr: ChangeDetectorRef
+  ) {
+    afterNextRender(() => {
+      this.user = this.authService.getUser();
+      this.cargarFavoritosApiDesdeBackend();
+      this.cargarVerMasTardeApiDesdeBackend();
+    });
+  }
 
   ngOnInit() {
     this.user = this.authService.getUser();
     this.cargarFavoritosLocales();
     this.cargarVerMasTardeLocales();
-    this.cargarFavoritosApiDesdeBackend();
-    this.cargarVerMasTardeApiDesdeBackend();
     this.filtrarPeliculas();
     this.cargarPeliculasPopularesAPI();
   }
@@ -257,9 +250,13 @@ export class Home implements OnInit {
   }
 
   cargarFavoritosApiDesdeBackend() {
-    const userId = this.user?.id;
+    const user = this.authService.getUser();
+    const userId = this.authService.getUserId();
+    console.log('Usuario actual:', user);
+
     if (!userId) {
-      this.favoritosAPI = this.obtenerSetDesdeStorage(this.API_FAVORITOS_KEY);
+      this.favoritosAPI = new Set();
+      this.favoriteIdByTmdb.clear();
       return;
     }
 
@@ -267,22 +264,27 @@ export class Home implements OnInit {
       next: (response) => {
         this.favoritosAPI = new Set();
         this.favoriteIdByTmdb.clear();
-        response.favorites.forEach((fav) => {
-          this.favoritosAPI.add(fav.movie.tmdb_id);
-          this.favoriteIdByTmdb.set(fav.movie.tmdb_id, fav.id);
+        (response.favorites ?? []).forEach((fav) => {
+          if (fav.movie?.tmdb_id) {
+            this.favoritosAPI.add(fav.movie.tmdb_id);
+            this.favoriteIdByTmdb.set(fav.movie.tmdb_id, fav.id);
+          }
         });
+        console.log('Favoritos cargados en home:', Array.from(this.favoritosAPI));
+        this.cdr.detectChanges();
       },
       error: (error) => {
-        console.warn('No se pudieron cargar favoritos desde API. Usando localStorage.', error);
-        this.favoritosAPI = this.obtenerSetDesdeStorage(this.API_FAVORITOS_KEY);
+        console.error('[StreamZone] Error al cargar favoritos en home:', error);
+        this.cdr.detectChanges();
       },
     });
   }
 
   cargarVerMasTardeApiDesdeBackend() {
-    const userId = this.user?.id;
+    const userId = this.authService.getUserId();
     if (!userId) {
-      this.verMasTardeAPI = this.obtenerSetDesdeStorage(this.API_VER_MAS_TARDE_KEY);
+      this.verMasTardeAPI = new Set();
+      this.watchLaterIdByTmdb.clear();
       return;
     }
 
@@ -290,14 +292,18 @@ export class Home implements OnInit {
       next: (response) => {
         this.verMasTardeAPI = new Set();
         this.watchLaterIdByTmdb.clear();
-        response.watch_later.forEach((item) => {
-          this.verMasTardeAPI.add(item.movie.tmdb_id);
-          this.watchLaterIdByTmdb.set(item.movie.tmdb_id, item.id);
+        (response.watch_later ?? []).forEach((item) => {
+          if (item.movie?.tmdb_id) {
+            this.verMasTardeAPI.add(item.movie.tmdb_id);
+            this.watchLaterIdByTmdb.set(item.movie.tmdb_id, item.id);
+          }
         });
+        console.log('Ver más tarde cargados en home:', Array.from(this.verMasTardeAPI));
+        this.cdr.detectChanges();
       },
       error: (error) => {
-        console.warn('No se pudo cargar ver más tarde desde API. Usando localStorage.', error);
-        this.verMasTardeAPI = this.obtenerSetDesdeStorage(this.API_VER_MAS_TARDE_KEY);
+        console.error('[StreamZone] Error al cargar ver más tarde en home:', error);
+        this.cdr.detectChanges();
       },
     });
   }
@@ -359,19 +365,21 @@ export class Home implements OnInit {
     this.cargandoAPI = true;
     this.peliculasApi.obtenerPeliculasPopulares(1, 'es-ES').subscribe({
       next: (peliculas) => {
-        this.peliculasAPI = peliculas;
-        this.peliculasAPIFiltradas = peliculas;
+        this.peliculasAPI = [...peliculas];
+        this.peliculasAPIFiltradas = [...peliculas];
         if (peliculas.length === 0) {
           this.errorAPI = 'No se pudieron cargar películas de la API en este momento.';
         }
         this.cargandoAPI = false;
+        this.cdr.detectChanges();
       },
       error: (error) => {
-        console.error('Error al cargar películas de la API:', error);
+        console.error('[StreamZone] Error al cargar películas de la API:', error);
         this.cargandoAPI = false;
         this.errorAPI = 'No se pudo conectar con la API externa. Mostrando catálogo local.';
         this.usarAPI = false;
-      }
+        this.cdr.detectChanges();
+      },
     });
   }
 
@@ -382,17 +390,20 @@ export class Home implements OnInit {
     }
     this.errorAPI = '';
     this.cargandoAPI = true;
+    this.cdr.detectChanges();
     this.peliculasApi.buscarPeliculas(termino, 1, 'es-ES').subscribe({
       next: (peliculas) => {
-        this.peliculasAPIFiltradas = peliculas;
+        this.peliculasAPIFiltradas = [...peliculas];
         this.cargandoAPI = false;
+        this.cdr.detectChanges();
       },
       error: (error) => {
-        console.error('Error al buscar en la API:', error);
+        console.error('[StreamZone] Error al buscar en la API:', error);
         this.cargandoAPI = false;
         this.peliculasAPIFiltradas = [];
         this.errorAPI = 'Error al buscar en la API. Intenta de nuevo.';
-      }
+        this.cdr.detectChanges();
+      },
     });
   }
 
@@ -413,39 +424,45 @@ export class Home implements OnInit {
   }
 
   toggleFavoritoAPI(pelicula: PeliculaTransformada) {
-    const userId = this.user?.id;
+    const user = this.authService.getUser();
+    const userId = this.obtenerUserIdOAlertar();
     if (!userId) {
       return;
     }
 
     if (this.favoritosAPI.has(pelicula.id)) {
       const favoriteId = this.favoriteIdByTmdb.get(pelicula.id);
-      if (favoriteId) {
-        this.favoritesApi.delete(favoriteId).subscribe({
-          next: () => {
-            this.favoritosAPI.delete(pelicula.id);
-            this.favoriteIdByTmdb.delete(pelicula.id);
-          },
-          error: (error) => {
-            console.warn('Error al eliminar favorito en API. Fallback localStorage.', error);
-            this.toggleFavoritoAPILocal(pelicula);
-          },
-        });
+      if (!favoriteId) {
+        this.favoritosAPI.delete(pelicula.id);
+        this.cargarFavoritosApiDesdeBackend();
         return;
       }
+
+      this.favoritesApi.delete(favoriteId).subscribe({
+        next: () => {
+          this.favoritosAPI.delete(pelicula.id);
+          this.favoriteIdByTmdb.delete(pelicula.id);
+          this.cdr.detectChanges();
+        },
+        error: (error) => this.manejarErrorBackend('eliminar favorito', error),
+      });
+      return;
     }
 
-    this.favoritesApi.add(toAddMovieListPayload(userId, pelicula)).subscribe({
+    const payload = toAddMovieListPayload(userId, pelicula);
+    console.log('Usuario actual:', user);
+    console.log('Payload favorito:', payload);
+
+    this.favoritesApi.add(payload).subscribe({
       next: (response) => {
-        this.favoritosAPI.add(pelicula.id);
-        if (response.favorite?.id) {
-          this.favoriteIdByTmdb.set(pelicula.id, response.favorite.id);
+        console.log('Respuesta favorito:', response);
+        if (response.favorite?.id && response.favorite.movie?.tmdb_id) {
+          this.favoritosAPI.add(response.favorite.movie.tmdb_id);
+          this.favoriteIdByTmdb.set(response.favorite.movie.tmdb_id, response.favorite.id);
         }
+        this.cdr.detectChanges();
       },
-      error: (error) => {
-        console.warn('Error al guardar favorito en API. Fallback localStorage.', error);
-        this.toggleFavoritoAPILocal(pelicula);
-      },
+      error: (error) => this.manejarErrorBackend('guardar favorito', error),
     });
   }
 
@@ -454,39 +471,45 @@ export class Home implements OnInit {
   }
 
   toggleVerMasTardeAPI(pelicula: PeliculaTransformada) {
-    const userId = this.user?.id;
+    const user = this.authService.getUser();
+    const userId = this.obtenerUserIdOAlertar();
     if (!userId) {
       return;
     }
 
     if (this.verMasTardeAPI.has(pelicula.id)) {
       const watchLaterId = this.watchLaterIdByTmdb.get(pelicula.id);
-      if (watchLaterId) {
-        this.watchLaterApi.delete(watchLaterId).subscribe({
-          next: () => {
-            this.verMasTardeAPI.delete(pelicula.id);
-            this.watchLaterIdByTmdb.delete(pelicula.id);
-          },
-          error: (error) => {
-            console.warn('Error al eliminar ver más tarde en API. Fallback localStorage.', error);
-            this.toggleVerMasTardeAPILocal(pelicula);
-          },
-        });
+      if (!watchLaterId) {
+        this.verMasTardeAPI.delete(pelicula.id);
+        this.cargarVerMasTardeApiDesdeBackend();
         return;
       }
+
+      this.watchLaterApi.delete(watchLaterId).subscribe({
+        next: () => {
+          this.verMasTardeAPI.delete(pelicula.id);
+          this.watchLaterIdByTmdb.delete(pelicula.id);
+          this.cdr.detectChanges();
+        },
+        error: (error) => this.manejarErrorBackend('eliminar de ver más tarde', error),
+      });
+      return;
     }
 
-    this.watchLaterApi.add(toAddMovieListPayload(userId, pelicula)).subscribe({
+    const payload = toAddMovieListPayload(userId, pelicula);
+    console.log('Usuario actual:', user);
+    console.log('Payload ver más tarde:', payload);
+
+    this.watchLaterApi.add(payload).subscribe({
       next: (response) => {
-        this.verMasTardeAPI.add(pelicula.id);
-        if (response.watch_later?.id) {
-          this.watchLaterIdByTmdb.set(pelicula.id, response.watch_later.id);
+        console.log('Respuesta ver más tarde:', response);
+        if (response.watch_later?.id && response.watch_later.movie?.tmdb_id) {
+          this.verMasTardeAPI.add(response.watch_later.movie.tmdb_id);
+          this.watchLaterIdByTmdb.set(response.watch_later.movie.tmdb_id, response.watch_later.id);
         }
+        this.cdr.detectChanges();
       },
-      error: (error) => {
-        console.warn('Error al guardar ver más tarde en API. Fallback localStorage.', error);
-        this.toggleVerMasTardeAPILocal(pelicula);
-      },
+      error: (error) => this.manejarErrorBackend('guardar en ver más tarde', error),
     });
   }
 
@@ -494,66 +517,33 @@ export class Home implements OnInit {
     return this.verMasTardeAPI.has(pelicula.id);
   }
 
-  /** Fallback temporal si el backend no está disponible */
-  private toggleFavoritoAPILocal(pelicula: PeliculaTransformada) {
-    if (this.favoritosAPI.has(pelicula.id)) {
-      this.favoritosAPI.delete(pelicula.id);
-    } else {
-      this.favoritosAPI.add(pelicula.id);
+  /** Lee user_id actualizado desde localStorage tras el login */
+  private obtenerUserIdOAlertar(): number | null {
+    this.user = this.authService.getUser();
+    const userId = this.authService.getUserId();
+
+    if (!userId) {
+      const mensaje = 'Debes iniciar sesión para guardar en tu cuenta.';
+      this.errorAPI = mensaje;
+      console.error('[StreamZone]', mensaje);
+      alert(mensaje);
+      this.cdr.detectChanges();
+      return null;
     }
-    this.guardarSetEnStorage(this.API_FAVORITOS_KEY, this.favoritosAPI);
-    this.sincronizarDetalleApiGuardado(
-      this.API_FAVORITOS_DATA_KEY,
-      this.favoritosAPI,
-      pelicula
-    );
+
+    return userId;
   }
 
-  /** Fallback temporal si el backend no está disponible */
-  private toggleVerMasTardeAPILocal(pelicula: PeliculaTransformada) {
-    if (this.verMasTardeAPI.has(pelicula.id)) {
-      this.verMasTardeAPI.delete(pelicula.id);
-    } else {
-      this.verMasTardeAPI.add(pelicula.id);
-    }
-    this.guardarSetEnStorage(this.API_VER_MAS_TARDE_KEY, this.verMasTardeAPI);
-    this.sincronizarDetalleApiGuardado(
-      this.API_VER_MAS_TARDE_DATA_KEY,
-      this.verMasTardeAPI,
-      pelicula
-    );
-  }
+  private manejarErrorBackend(accion: string, error: unknown): void {
+    const httpError = error as { status?: number; error?: { message?: string } };
+    const mensajeBackend = httpError?.error?.message;
+    const mensaje =
+      mensajeBackend ||
+      `No se pudo ${accion}. Error ${httpError?.status ?? 'de red'}.`;
 
-  private sincronizarDetalleApiGuardado(
-    key: string,
-    ids: Set<number>,
-    pelicula: PeliculaTransformada
-  ) {
-    const detalleActual = this.obtenerDetallesApiDesdeStorage(key);
-    const sinActual = detalleActual.filter((item) => item.id !== pelicula.id);
-
-    if (ids.has(pelicula.id)) {
-      sinActual.unshift({
-        id: pelicula.id,
-        nombre: pelicula.nombre,
-        imagen: pelicula.imagen
-      });
-    }
-
-    localStorage.setItem(key, JSON.stringify(sinActual));
-  }
-
-  private obtenerDetallesApiDesdeStorage(key: string): PeliculaGuardadaApi[] {
-    const stored = localStorage.getItem(key);
-    if (!stored) {
-      return [];
-    }
-
-    try {
-      const parsed = JSON.parse(stored) as PeliculaGuardadaApi[];
-      return Array.isArray(parsed) ? parsed : [];
-    } catch {
-      return [];
-    }
+    console.error(`[StreamZone] Error al ${accion}:`, error);
+    this.errorAPI = mensaje;
+    alert(mensaje);
+    this.cdr.detectChanges();
   }
 }

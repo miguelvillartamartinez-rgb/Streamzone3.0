@@ -1,10 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { afterNextRender, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { CapitalizePipe } from '../pipes';
 import { AuthService } from '../auth';
 import { WatchLaterApiService } from '../services/watch-later-api.service';
-import { buildPosterUrl } from '../services/api-movie.helper';
+import { mapWatchLaterToPelicula, PeliculaListaApi } from '../services/api-list.mapper';
 
 interface PeliculaVerMasTarde {
   id: number;
@@ -21,18 +21,21 @@ interface PeliculaVerMasTarde {
   styleUrls: ['./ver-mas-tarde.css']
 })
 export class VerMasTarde implements OnInit {
-  // Fallback temporal: detalle de películas TMDB en localStorage si falla la API
-  private readonly API_VER_MAS_TARDE_DATA_KEY = 'apiVerMasTardeData';
-
   peliculasStarWars: PeliculaVerMasTarde[] = [];
   peliculasTransformers: PeliculaVerMasTarde[] = [];
   peliculasApi: PeliculaVerMasTarde[] = [];
+  errorApi: string = '';
 
   constructor(
     private router: Router,
     private authService: AuthService,
-    private watchLaterApi: WatchLaterApiService
-  ) {}
+    private watchLaterApi: WatchLaterApiService,
+    private cdr: ChangeDetectorRef
+  ) {
+    afterNextRender(() => {
+      this.cargarVerMasTardeApiDesdeBackend();
+    });
+  }
 
   nombresStarWars: string[] = [
     'Star Wars: Episodio I - La Amenaza Fantasma',
@@ -58,10 +61,8 @@ export class VerMasTarde implements OnInit {
   ngOnInit() {
     this.cargarVerMasTardeStarWars();
     this.cargarVerMasTardeTransformers();
-    this.cargarVerMasTardeApiDesdeBackend();
   }
 
-  /** Catálogo local (localStorage) — sin tmdb_id en backend */
   cargarVerMasTardeStarWars() {
     this.peliculasStarWars = [];
     const verMasTardeStr = localStorage.getItem('starWarsVerMasTarde');
@@ -91,35 +92,33 @@ export class VerMasTarde implements OnInit {
   }
 
   cargarVerMasTardeApiDesdeBackend() {
+    const user = this.authService.getUser();
     const userId = this.authService.getUserId();
+    console.log('Usuario actual:', user);
+
     if (!userId) {
-      this.cargarVerMasTardeApiLocal();
+      this.peliculasApi = [];
+      this.errorApi = 'Inicia sesión para ver tu lista de ver más tarde.';
+      this.cdr.detectChanges();
       return;
     }
 
     this.watchLaterApi.getByUserId(userId).subscribe({
       next: (response) => {
-        this.peliculasApi = response.watch_later.map((item) => ({
-          id: item.id,
-          nombre: item.movie.title,
-          imagen: buildPosterUrl(item.movie.poster_path),
-          origen: 'api',
-        }));
+        const watchLater = (response.watch_later ?? []).map(mapWatchLaterToPelicula);
+        console.log('Ver más tarde cargados:', watchLater);
+
+        this.peliculasApi = watchLater.map((w) => this.toPeliculaVerMasTarde(w));
+        this.errorApi = '';
+        this.cdr.detectChanges();
       },
       error: (error) => {
-        console.warn('Error al cargar ver más tarde desde API. Usando localStorage.', error);
-        this.cargarVerMasTardeApiLocal();
+        console.error('[StreamZone] Error al cargar ver más tarde:', error);
+        this.peliculasApi = [];
+        this.errorApi = 'No se pudo cargar la lista desde el servidor.';
+        this.cdr.detectChanges();
       },
     });
-  }
-
-  /** Fallback temporal si el backend no responde */
-  private cargarVerMasTardeApiLocal() {
-    const verMasTardeApi = this.obtenerArrayDesdeStorage<PeliculaVerMasTarde>(this.API_VER_MAS_TARDE_DATA_KEY);
-    this.peliculasApi = verMasTardeApi.map((pelicula) => ({
-      ...pelicula,
-      origen: 'api',
-    }));
   }
 
   eliminarVerMasTarde(id: number) {
@@ -129,6 +128,7 @@ export class VerMasTarde implements OnInit {
       const nuevosVerMasTarde = verMasTardeArray.filter(favId => favId !== id);
       localStorage.setItem('starWarsVerMasTarde', JSON.stringify(nuevosVerMasTarde));
       this.cargarVerMasTardeStarWars();
+      this.cdr.detectChanges();
     }
   }
 
@@ -139,6 +139,7 @@ export class VerMasTarde implements OnInit {
       const nuevosVerMasTarde = verMasTardeArray.filter(favId => favId !== id);
       localStorage.setItem('transformersVerMasTarde', JSON.stringify(nuevosVerMasTarde));
       this.cargarVerMasTardeTransformers();
+      this.cdr.detectChanges();
     }
   }
 
@@ -146,16 +147,9 @@ export class VerMasTarde implements OnInit {
     this.watchLaterApi.delete(watchLaterId).subscribe({
       next: () => this.cargarVerMasTardeApiDesdeBackend(),
       error: (error) => {
-        console.warn('Error al eliminar ver más tarde en API. Fallback localStorage.', error);
-        const verMasTardeIds = this.obtenerArrayDesdeStorage<number>('apiVerMasTarde');
-        const nuevosIds = verMasTardeIds.filter((favId) => favId !== watchLaterId);
-        localStorage.setItem('apiVerMasTarde', JSON.stringify(nuevosIds));
-
-        const detalle = this.obtenerArrayDesdeStorage<PeliculaVerMasTarde>(this.API_VER_MAS_TARDE_DATA_KEY);
-        const nuevoDetalle = detalle.filter((pelicula) => pelicula.id !== watchLaterId);
-        localStorage.setItem(this.API_VER_MAS_TARDE_DATA_KEY, JSON.stringify(nuevoDetalle));
-
-        this.cargarVerMasTardeApiLocal();
+        console.error('[StreamZone] Error al eliminar ver más tarde:', error);
+        alert('No se pudo eliminar de ver más tarde.');
+        this.cdr.detectChanges();
       },
     });
   }
@@ -169,17 +163,12 @@ export class VerMasTarde implements OnInit {
     img.src = 'assets/logoStreamZone.png';
   }
 
-  private obtenerArrayDesdeStorage<T>(key: string): T[] {
-    const valor = localStorage.getItem(key);
-    if (!valor) {
-      return [];
-    }
-
-    try {
-      const parsed = JSON.parse(valor);
-      return Array.isArray(parsed) ? (parsed as T[]) : [];
-    } catch {
-      return [];
-    }
+  private toPeliculaVerMasTarde(item: PeliculaListaApi): PeliculaVerMasTarde {
+    return {
+      id: item.id,
+      nombre: item.nombre,
+      imagen: item.imagen,
+      origen: 'api',
+    };
   }
 }
