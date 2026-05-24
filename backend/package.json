@@ -1,0 +1,20 @@
+{
+  "name": "streamzone-backend",
+  "version": "1.0.0",
+  "description": "API REST de StreamZone (TFG)",
+  "main": "src/server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
+  },
+  "keywords": ["streamzone", "express", "postgresql"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "pg": "^8.13.1"
+  }
+}
