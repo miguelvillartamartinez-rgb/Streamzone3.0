@@ -1,0 +1,61 @@
+<div class="contenedor">
+  <button class="boton-volver" (click)="volverAHome()" title="Volver a la página principal">
+    ←
+  </button>
+  <h1>⏰ Ver Más Tarde</h1>
+  <p class="page-subtitle">Guarda aquí lo que quieres ver cuando tengas tiempo.</p>
+
+  <!-- Sección de películas de Star Wars -->
+  <div class="starwars-section" *ngIf="peliculasStarWars.length > 0">
+    <h2 class="section-title">⏰ Películas de Star Wars para Ver Más Tarde</h2>
+    <div class="starwars-grid">
+      <div class="starwars-card" *ngFor="let pelicula of peliculasStarWars">
+        <img [src]="pelicula.imagen" [alt]="pelicula.nombre" class="starwars-image" (error)="onImageError($event)">
+        <div class="starwars-info">
+          <h3 class="starwars-nombre">{{ pelicula.nombre | capitalize }}</h3>
+          <button class="eliminar-btn" (click)="eliminarVerMasTarde(pelicula.id)" title="Eliminar de ver más tarde">
+            ❌ Eliminar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sección de películas de Transformers -->
+  <div class="starwars-section" *ngIf="peliculasTransformers.length > 0">
+    <h2 class="section-title">⏰ Películas de Transformers para Ver Más Tarde</h2>
+    <div class="starwars-grid">
+      <div class="starwars-card" *ngFor="let pelicula of peliculasTransformers">
+        <img [src]="pelicula.imagen" [alt]="pelicula.nombre" class="starwars-image" (error)="onImageError($event)">
+        <div class="starwars-info">
+          <h3 class="starwars-nombre">{{ pelicula.nombre | capitalize }}</h3>
+          <button class="eliminar-btn" (click)="eliminarVerMasTardeTransformers(pelicula.id)" title="Eliminar de ver más tarde">
+            ❌ Eliminar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="starwars-section" *ngIf="peliculasApi.length > 0">
+    <h2 class="section-title">🎬 Películas de API guardadas para ver más tarde</h2>
+    <div class="starwars-grid">
+      <div class="starwars-card" *ngFor="let pelicula of peliculasApi">
+        <img [src]="pelicula.imagen" [alt]="pelicula.nombre" class="starwars-image" (error)="onImageError($event)">
+        <div class="starwars-info">
+          <h3 class="starwars-nombre">{{ pelicula.nombre | capitalize }}</h3>
+          <button class="eliminar-btn" (click)="eliminarVerMasTardeApi(pelicula.id)" title="Eliminar de ver más tarde">
+            ❌ Eliminar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mensaje cuando no hay películas -->
+  <div *ngIf="peliculasStarWars.length === 0 && peliculasTransformers.length === 0 && peliculasApi.length === 0" class="mensaje-vacio">
+    <p>Aún no tienes películas guardadas ✨</p>
+    <p class="mensaje-subtitulo">Agrega películas desde la página principal usando el reloj ⏰</p>
+  </div>
+</div>
+
