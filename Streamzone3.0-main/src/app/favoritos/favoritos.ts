@@ -2,6 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { CapitalizePipe } from '../pipes';
+import { AuthService } from '../auth';
+import { FavoritesApiService } from '../services/favorites-api.service';
+import { buildPosterUrl } from '../services/api-movie.helper';
 
 interface PeliculaFavorita {
   id: number;
@@ -18,13 +21,19 @@ interface PeliculaFavorita {
   styleUrls: ['./favoritos.css']
 })
 export class Favoritos implements OnInit {
+  // Fallback temporal: detalle de películas TMDB en localStorage si falla la API
   private readonly API_FAVORITOS_DATA_KEY = 'apiFavoritosData';
 
   peliculasStarWars: PeliculaFavorita[] = [];
   peliculasTransformers: PeliculaFavorita[] = [];
   peliculasApi: PeliculaFavorita[] = [];
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private authService: AuthService,
+    private favoritesApi: FavoritesApiService
+  ) {}
+
   nombresStarWars: string[] = [
     'Star Wars: Episodio I - La Amenaza Fantasma',
     'Star Wars: Episodio II - El Ataque de los Clones',
@@ -49,9 +58,10 @@ export class Favoritos implements OnInit {
   ngOnInit() {
     this.cargarFavoritosStarWars();
     this.cargarFavoritosTransformers();
-    this.cargarFavoritosApi();
+    this.cargarFavoritosApiDesdeBackend();
   }
 
+  /** Catálogo local (localStorage) — sin tmdb_id en backend */
   cargarFavoritosStarWars() {
     this.peliculasStarWars = [];
     const favoritosStr = localStorage.getItem('starWarsFavoritos');
@@ -80,11 +90,35 @@ export class Favoritos implements OnInit {
     }
   }
 
-  cargarFavoritosApi() {
+  cargarFavoritosApiDesdeBackend() {
+    const userId = this.authService.getUserId();
+    if (!userId) {
+      this.cargarFavoritosApiLocal();
+      return;
+    }
+
+    this.favoritesApi.getByUserId(userId).subscribe({
+      next: (response) => {
+        this.peliculasApi = response.favorites.map((fav) => ({
+          id: fav.id,
+          nombre: fav.movie.title,
+          imagen: buildPosterUrl(fav.movie.poster_path),
+          origen: 'api',
+        }));
+      },
+      error: (error) => {
+        console.warn('Error al cargar favoritos desde API. Usando localStorage.', error);
+        this.cargarFavoritosApiLocal();
+      },
+    });
+  }
+
+  /** Fallback temporal si el backend no responde */
+  private cargarFavoritosApiLocal() {
     const favoritosApi = this.obtenerArrayDesdeStorage<PeliculaFavorita>(this.API_FAVORITOS_DATA_KEY);
     this.peliculasApi = favoritosApi.map((pelicula) => ({
       ...pelicula,
-      origen: 'api'
+      origen: 'api',
     }));
   }
 
@@ -108,16 +142,22 @@ export class Favoritos implements OnInit {
     }
   }
 
-  eliminarFavoritoApi(id: number) {
-    const favoritosIds = this.obtenerArrayDesdeStorage<number>('apiFavoritos');
-    const nuevosIds = favoritosIds.filter((favId) => favId !== id);
-    localStorage.setItem('apiFavoritos', JSON.stringify(nuevosIds));
+  eliminarFavoritoApi(favoriteId: number) {
+    this.favoritesApi.delete(favoriteId).subscribe({
+      next: () => this.cargarFavoritosApiDesdeBackend(),
+      error: (error) => {
+        console.warn('Error al eliminar favorito en API. Fallback localStorage.', error);
+        const favoritosIds = this.obtenerArrayDesdeStorage<number>('apiFavoritos');
+        const nuevosIds = favoritosIds.filter((favId) => favId !== favoriteId);
+        localStorage.setItem('apiFavoritos', JSON.stringify(nuevosIds));
 
-    const detalle = this.obtenerArrayDesdeStorage<PeliculaFavorita>(this.API_FAVORITOS_DATA_KEY);
-    const nuevoDetalle = detalle.filter((pelicula) => pelicula.id !== id);
-    localStorage.setItem(this.API_FAVORITOS_DATA_KEY, JSON.stringify(nuevoDetalle));
+        const detalle = this.obtenerArrayDesdeStorage<PeliculaFavorita>(this.API_FAVORITOS_DATA_KEY);
+        const nuevoDetalle = detalle.filter((pelicula) => pelicula.id !== favoriteId);
+        localStorage.setItem(this.API_FAVORITOS_DATA_KEY, JSON.stringify(nuevoDetalle));
 
-    this.cargarFavoritosApi();
+        this.cargarFavoritosApiLocal();
+      },
+    });
   }
 
   volverAHome() {

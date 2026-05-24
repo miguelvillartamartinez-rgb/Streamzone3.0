@@ -10,6 +10,10 @@ export interface EstadoPeliculasApi {
   verMasTardeTransformers: number[];
 }
 
+/**
+ * Servicio legado (SSR/JSON local). No se usa en Fase 5.
+ * Favoritos y ver más tarde usan FavoritesApiService y WatchLaterApiService.
+ */
 @Injectable({
   providedIn: 'root'
 })

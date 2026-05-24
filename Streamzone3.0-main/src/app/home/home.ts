@@ -5,6 +5,10 @@ import { FormsModule } from '@angular/forms';
 import { AuthService } from '../auth';
 import { TruncatePipe, CapitalizePipe } from '../pipes';
 import { PeliculasApiService, PeliculaTransformada } from '../services/peliculas-api.service';
+import { FavoritesApiService } from '../services/favorites-api.service';
+import { WatchLaterApiService } from '../services/watch-later-api.service';
+import { toAddMovieListPayload } from '../services/api-movie.helper';
+import { SessionUser } from '../models/backend-api.models';
 
 interface PeliculaGuardadaApi {
   id: number;
@@ -20,19 +24,19 @@ interface PeliculaGuardadaApi {
   styleUrls: ['./home.css', '../app.css']
 })
 export class Home implements OnInit {
+  // Fallback temporal: catálogo local Star Wars / Transformers sin tmdb_id en backend
   private readonly API_FAVORITOS_KEY = 'apiFavoritos';
   private readonly API_VER_MAS_TARDE_KEY = 'apiVerMasTarde';
   private readonly API_FAVORITOS_DATA_KEY = 'apiFavoritosData';
   private readonly API_VER_MAS_TARDE_DATA_KEY = 'apiVerMasTardeData';
 
-  user: any = null;
+  user: SessionUser | null = null;
   terminoBusqueda: string = '';
   imagenesSt: number[] = [1, 2, 3, 4, 5, 6, 7, 8, 9];
   imagenesTransformers: number[] = [1, 2, 3, 4, 5, 6, 7];
   imagenesStFiltradas: number[] = [1, 2, 3, 4, 5, 6, 7, 8, 9];
   imagenesTransformersFiltradas: number[] = [1, 2, 3, 4, 5, 6, 7];
   
-  // Películas de la API
   peliculasAPI: PeliculaTransformada[] = [];
   peliculasAPIFiltradas: PeliculaTransformada[] = [];
   cargandoAPI: boolean = false;
@@ -65,16 +69,25 @@ export class Home implements OnInit {
   verMasTardeTransformers: Set<number> = new Set();
   verMasTardeAPI: Set<number> = new Set();
 
+  /** Mapa tmdb_id -> id de fila en favorites (PostgreSQL) */
+  private favoriteIdByTmdb = new Map<number, number>();
+  /** Mapa tmdb_id -> id de fila en watch_later (PostgreSQL) */
+  private watchLaterIdByTmdb = new Map<number, number>();
+
   constructor(
     private authService: AuthService,
     private router: Router,
-    private peliculasApi: PeliculasApiService
+    private peliculasApi: PeliculasApiService,
+    private favoritesApi: FavoritesApiService,
+    private watchLaterApi: WatchLaterApiService
   ) {}
 
   ngOnInit() {
     this.user = this.authService.getUser();
-    this.cargarFavoritos();
-    this.cargarVerMasTarde();
+    this.cargarFavoritosLocales();
+    this.cargarVerMasTardeLocales();
+    this.cargarFavoritosApiDesdeBackend();
+    this.cargarVerMasTardeApiDesdeBackend();
     this.filtrarPeliculas();
     this.cargarPeliculasPopularesAPI();
   }
@@ -180,10 +193,10 @@ export class Home implements OnInit {
       .trim();
   }
 
-  cargarFavoritos() {
+  /** Catálogo local Star Wars / Transformers (localStorage) */
+  cargarFavoritosLocales() {
     this.favoritosStarWars = this.obtenerSetDesdeStorage('starWarsFavoritos');
     this.favoritosTransformers = this.obtenerSetDesdeStorage('transformersFavoritos');
-    this.favoritosAPI = this.obtenerSetDesdeStorage(this.API_FAVORITOS_KEY);
   }
 
   guardarFavoritosStarWars() {
@@ -212,10 +225,9 @@ export class Home implements OnInit {
     return this.favoritosTransformers.has(num);
   }
 
-  cargarVerMasTarde() {
+  cargarVerMasTardeLocales() {
     this.verMasTardeStarWars = this.obtenerSetDesdeStorage('starWarsVerMasTarde');
     this.verMasTardeTransformers = this.obtenerSetDesdeStorage('transformersVerMasTarde');
-    this.verMasTardeAPI = this.obtenerSetDesdeStorage(this.API_VER_MAS_TARDE_KEY);
   }
 
   guardarVerMasTardeStarWars() {
@@ -242,6 +254,52 @@ export class Home implements OnInit {
 
   estaEnVerMasTardeTransformers(num: number): boolean {
     return this.verMasTardeTransformers.has(num);
+  }
+
+  cargarFavoritosApiDesdeBackend() {
+    const userId = this.user?.id;
+    if (!userId) {
+      this.favoritosAPI = this.obtenerSetDesdeStorage(this.API_FAVORITOS_KEY);
+      return;
+    }
+
+    this.favoritesApi.getByUserId(userId).subscribe({
+      next: (response) => {
+        this.favoritosAPI = new Set();
+        this.favoriteIdByTmdb.clear();
+        response.favorites.forEach((fav) => {
+          this.favoritosAPI.add(fav.movie.tmdb_id);
+          this.favoriteIdByTmdb.set(fav.movie.tmdb_id, fav.id);
+        });
+      },
+      error: (error) => {
+        console.warn('No se pudieron cargar favoritos desde API. Usando localStorage.', error);
+        this.favoritosAPI = this.obtenerSetDesdeStorage(this.API_FAVORITOS_KEY);
+      },
+    });
+  }
+
+  cargarVerMasTardeApiDesdeBackend() {
+    const userId = this.user?.id;
+    if (!userId) {
+      this.verMasTardeAPI = this.obtenerSetDesdeStorage(this.API_VER_MAS_TARDE_KEY);
+      return;
+    }
+
+    this.watchLaterApi.getByUserId(userId).subscribe({
+      next: (response) => {
+        this.verMasTardeAPI = new Set();
+        this.watchLaterIdByTmdb.clear();
+        response.watch_later.forEach((item) => {
+          this.verMasTardeAPI.add(item.movie.tmdb_id);
+          this.watchLaterIdByTmdb.set(item.movie.tmdb_id, item.id);
+        });
+      },
+      error: (error) => {
+        console.warn('No se pudo cargar ver más tarde desde API. Usando localStorage.', error);
+        this.verMasTardeAPI = this.obtenerSetDesdeStorage(this.API_VER_MAS_TARDE_KEY);
+      },
+    });
   }
 
   getImagenStPath(num: number): string {
@@ -355,6 +413,89 @@ export class Home implements OnInit {
   }
 
   toggleFavoritoAPI(pelicula: PeliculaTransformada) {
+    const userId = this.user?.id;
+    if (!userId) {
+      return;
+    }
+
+    if (this.favoritosAPI.has(pelicula.id)) {
+      const favoriteId = this.favoriteIdByTmdb.get(pelicula.id);
+      if (favoriteId) {
+        this.favoritesApi.delete(favoriteId).subscribe({
+          next: () => {
+            this.favoritosAPI.delete(pelicula.id);
+            this.favoriteIdByTmdb.delete(pelicula.id);
+          },
+          error: (error) => {
+            console.warn('Error al eliminar favorito en API. Fallback localStorage.', error);
+            this.toggleFavoritoAPILocal(pelicula);
+          },
+        });
+        return;
+      }
+    }
+
+    this.favoritesApi.add(toAddMovieListPayload(userId, pelicula)).subscribe({
+      next: (response) => {
+        this.favoritosAPI.add(pelicula.id);
+        if (response.favorite?.id) {
+          this.favoriteIdByTmdb.set(pelicula.id, response.favorite.id);
+        }
+      },
+      error: (error) => {
+        console.warn('Error al guardar favorito en API. Fallback localStorage.', error);
+        this.toggleFavoritoAPILocal(pelicula);
+      },
+    });
+  }
+
+  esFavoritoAPI(pelicula: PeliculaTransformada): boolean {
+    return this.favoritosAPI.has(pelicula.id);
+  }
+
+  toggleVerMasTardeAPI(pelicula: PeliculaTransformada) {
+    const userId = this.user?.id;
+    if (!userId) {
+      return;
+    }
+
+    if (this.verMasTardeAPI.has(pelicula.id)) {
+      const watchLaterId = this.watchLaterIdByTmdb.get(pelicula.id);
+      if (watchLaterId) {
+        this.watchLaterApi.delete(watchLaterId).subscribe({
+          next: () => {
+            this.verMasTardeAPI.delete(pelicula.id);
+            this.watchLaterIdByTmdb.delete(pelicula.id);
+          },
+          error: (error) => {
+            console.warn('Error al eliminar ver más tarde en API. Fallback localStorage.', error);
+            this.toggleVerMasTardeAPILocal(pelicula);
+          },
+        });
+        return;
+      }
+    }
+
+    this.watchLaterApi.add(toAddMovieListPayload(userId, pelicula)).subscribe({
+      next: (response) => {
+        this.verMasTardeAPI.add(pelicula.id);
+        if (response.watch_later?.id) {
+          this.watchLaterIdByTmdb.set(pelicula.id, response.watch_later.id);
+        }
+      },
+      error: (error) => {
+        console.warn('Error al guardar ver más tarde en API. Fallback localStorage.', error);
+        this.toggleVerMasTardeAPILocal(pelicula);
+      },
+    });
+  }
+
+  estaEnVerMasTardeAPI(pelicula: PeliculaTransformada): boolean {
+    return this.verMasTardeAPI.has(pelicula.id);
+  }
+
+  /** Fallback temporal si el backend no está disponible */
+  private toggleFavoritoAPILocal(pelicula: PeliculaTransformada) {
     if (this.favoritosAPI.has(pelicula.id)) {
       this.favoritosAPI.delete(pelicula.id);
     } else {
@@ -368,11 +509,8 @@ export class Home implements OnInit {
     );
   }
 
-  esFavoritoAPI(pelicula: PeliculaTransformada): boolean {
-    return this.favoritosAPI.has(pelicula.id);
-  }
-
-  toggleVerMasTardeAPI(pelicula: PeliculaTransformada) {
+  /** Fallback temporal si el backend no está disponible */
+  private toggleVerMasTardeAPILocal(pelicula: PeliculaTransformada) {
     if (this.verMasTardeAPI.has(pelicula.id)) {
       this.verMasTardeAPI.delete(pelicula.id);
     } else {
@@ -384,10 +522,6 @@ export class Home implements OnInit {
       this.verMasTardeAPI,
       pelicula
     );
-  }
-
-  estaEnVerMasTardeAPI(pelicula: PeliculaTransformada): boolean {
-    return this.verMasTardeAPI.has(pelicula.id);
   }
 
   private sincronizarDetalleApiGuardado(

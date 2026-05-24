@@ -2,6 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { CapitalizePipe } from '../pipes';
+import { AuthService } from '../auth';
+import { WatchLaterApiService } from '../services/watch-later-api.service';
+import { buildPosterUrl } from '../services/api-movie.helper';
 
 interface PeliculaVerMasTarde {
   id: number;
@@ -18,13 +21,19 @@ interface PeliculaVerMasTarde {
   styleUrls: ['./ver-mas-tarde.css']
 })
 export class VerMasTarde implements OnInit {
+  // Fallback temporal: detalle de películas TMDB en localStorage si falla la API
   private readonly API_VER_MAS_TARDE_DATA_KEY = 'apiVerMasTardeData';
 
   peliculasStarWars: PeliculaVerMasTarde[] = [];
   peliculasTransformers: PeliculaVerMasTarde[] = [];
   peliculasApi: PeliculaVerMasTarde[] = [];
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private authService: AuthService,
+    private watchLaterApi: WatchLaterApiService
+  ) {}
+
   nombresStarWars: string[] = [
     'Star Wars: Episodio I - La Amenaza Fantasma',
     'Star Wars: Episodio II - El Ataque de los Clones',
@@ -49,9 +58,10 @@ export class VerMasTarde implements OnInit {
   ngOnInit() {
     this.cargarVerMasTardeStarWars();
     this.cargarVerMasTardeTransformers();
-    this.cargarVerMasTardeApi();
+    this.cargarVerMasTardeApiDesdeBackend();
   }
 
+  /** Catálogo local (localStorage) — sin tmdb_id en backend */
   cargarVerMasTardeStarWars() {
     this.peliculasStarWars = [];
     const verMasTardeStr = localStorage.getItem('starWarsVerMasTarde');
@@ -80,11 +90,35 @@ export class VerMasTarde implements OnInit {
     }
   }
 
-  cargarVerMasTardeApi() {
+  cargarVerMasTardeApiDesdeBackend() {
+    const userId = this.authService.getUserId();
+    if (!userId) {
+      this.cargarVerMasTardeApiLocal();
+      return;
+    }
+
+    this.watchLaterApi.getByUserId(userId).subscribe({
+      next: (response) => {
+        this.peliculasApi = response.watch_later.map((item) => ({
+          id: item.id,
+          nombre: item.movie.title,
+          imagen: buildPosterUrl(item.movie.poster_path),
+          origen: 'api',
+        }));
+      },
+      error: (error) => {
+        console.warn('Error al cargar ver más tarde desde API. Usando localStorage.', error);
+        this.cargarVerMasTardeApiLocal();
+      },
+    });
+  }
+
+  /** Fallback temporal si el backend no responde */
+  private cargarVerMasTardeApiLocal() {
     const verMasTardeApi = this.obtenerArrayDesdeStorage<PeliculaVerMasTarde>(this.API_VER_MAS_TARDE_DATA_KEY);
     this.peliculasApi = verMasTardeApi.map((pelicula) => ({
       ...pelicula,
-      origen: 'api'
+      origen: 'api',
     }));
   }
 
@@ -108,16 +142,22 @@ export class VerMasTarde implements OnInit {
     }
   }
 
-  eliminarVerMasTardeApi(id: number) {
-    const verMasTardeIds = this.obtenerArrayDesdeStorage<number>('apiVerMasTarde');
-    const nuevosIds = verMasTardeIds.filter((favId) => favId !== id);
-    localStorage.setItem('apiVerMasTarde', JSON.stringify(nuevosIds));
+  eliminarVerMasTardeApi(watchLaterId: number) {
+    this.watchLaterApi.delete(watchLaterId).subscribe({
+      next: () => this.cargarVerMasTardeApiDesdeBackend(),
+      error: (error) => {
+        console.warn('Error al eliminar ver más tarde en API. Fallback localStorage.', error);
+        const verMasTardeIds = this.obtenerArrayDesdeStorage<number>('apiVerMasTarde');
+        const nuevosIds = verMasTardeIds.filter((favId) => favId !== watchLaterId);
+        localStorage.setItem('apiVerMasTarde', JSON.stringify(nuevosIds));
 
-    const detalle = this.obtenerArrayDesdeStorage<PeliculaVerMasTarde>(this.API_VER_MAS_TARDE_DATA_KEY);
-    const nuevoDetalle = detalle.filter((pelicula) => pelicula.id !== id);
-    localStorage.setItem(this.API_VER_MAS_TARDE_DATA_KEY, JSON.stringify(nuevoDetalle));
+        const detalle = this.obtenerArrayDesdeStorage<PeliculaVerMasTarde>(this.API_VER_MAS_TARDE_DATA_KEY);
+        const nuevoDetalle = detalle.filter((pelicula) => pelicula.id !== watchLaterId);
+        localStorage.setItem(this.API_VER_MAS_TARDE_DATA_KEY, JSON.stringify(nuevoDetalle));
 
-    this.cargarVerMasTardeApi();
+        this.cargarVerMasTardeApiLocal();
+      },
+    });
   }
 
   volverAHome() {
@@ -143,4 +183,3 @@ export class VerMasTarde implements OnInit {
     }
   }
 }
-

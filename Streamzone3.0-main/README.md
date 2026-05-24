@@ -1,14 +1,15 @@
 # StreamZone
 
 StreamZone es una plataforma web estilo streaming desarrollada con Angular.  
-Permite explorar películas, buscar contenido, gestionar favoritos y crear listas personales para ver más tarde, combinando catálogo local con consumo de datos desde TMDB.
+Permite explorar películas, buscar contenido, gestionar favoritos y crear listas personales para ver más tarde, combinando catálogo local con consumo de datos desde TMDB y persistencia en PostgreSQL.
 
 ## Qué es StreamZone
 
 Proyecto final orientado a DAM para demostrar:
-- Arquitectura básica Angular con componentes standalone.
-- Consumo de API REST.
-- Gestión de estado de usuario en cliente.
+- Arquitectura Angular con componentes standalone.
+- Consumo de API REST propia (Node.js + Express + PostgreSQL).
+- Consumo de API externa TMDB para catálogo y búsqueda.
+- Gestión de sesión de usuario en cliente.
 - Interfaz visual moderna y responsive.
 
 ## Tecnologías utilizadas
@@ -16,69 +17,86 @@ Proyecto final orientado a DAM para demostrar:
 - Angular 20
 - TypeScript
 - RxJS
-- HTML5 / CSS3
-- Angular Router
-- Angular HttpClient + interceptores
+- Node.js + Express (backend en carpeta `../backend`)
+- PostgreSQL
 - API externa: [TMDB](https://www.themoviedb.org/)
 
 ## Funcionalidades principales
 
-- Login y control de acceso con guards.
-- Home con catálogo visual tipo plataforma de streaming.
-- Búsqueda de películas en catálogo local y en API externa.
-- Favoritos (Star Wars, Transformers y películas cargadas desde API).
-- Lista "Ver más tarde" (catálogo local y películas de API).
-- Persistencia en `localStorage`.
-- Estados visuales de carga, error y resultados vacíos.
+- Login contra `POST /api/users/login` (PostgreSQL).
+- Home con catálogo visual y búsqueda TMDB.
+- Favoritos y “ver más tarde” de películas TMDB guardados en PostgreSQL.
+- Catálogo local Star Wars / Transformers en `localStorage` (sin `tmdb_id` en backend).
+- Control de acceso con guards.
 
-## Instalación y ejecución
+## Arranque del proyecto (Fase 5)
 
-1. Entrar en la carpeta del proyecto:
-```bash
-cd Streamzone3.0-main
-```
+Necesitas **tres servicios** en este orden:
 
-2. Instalar dependencias:
-```bash
+### 1. PostgreSQL
+
+- Base de datos `streamzone` creada.
+- Scripts ejecutados: `database/schema.sql` y `database/seed.sql`.
+- Credenciales configuradas en `backend/.env`.
+
+### 2. Backend (puerto 4000)
+
+```powershell
+cd ..\backend
 npm install
-```
-
-3. Ejecutar en desarrollo:
-```bash
 npm start
 ```
 
-4. Abrir en navegador:
-- `http://localhost:4200`
+Comprueba: [http://localhost:4000/api/health](http://localhost:4000/api/health) → `"database": "connected"`.
+
+Usuario de prueba del seed: `admin@streamzone.com` / `admin123`.
+
+### 3. Frontend Angular (puerto 4200)
+
+```powershell
+cd Streamzone3.0-main
+npm install
+npm start
+```
+
+Abre: [http://localhost:4200](http://localhost:4200)
+
+El proxy (`proxy.conf.json`) redirige las peticiones `/api/*` al backend en `http://localhost:4000`.  
+**No uses URL absolutas** en los servicios Angular; usa rutas como `/api/users/login`.
 
 ## Estructura básica del proyecto
 
 ```text
-src/
-  app/
-    home/                # Pantalla principal y catálogo
-    favoritos/           # Vista de favoritos
-    ver-mas-tarde/       # Vista de lista personalizada
-    login/               # Autenticación de usuario
-    services/            # Servicios de API y lógica de datos
-    config/              # Configuración de API
-    pipes/               # Pipes reutilizables
+src/app/
+  home/                      # Catálogo y acciones TMDB
+  favoritos/                 # Lista de favoritos
+  ver-mas-tarde/             # Lista ver más tarde
+  login/                     # Autenticación
+  services/
+    user-api.service.ts      # Login/registro → backend
+    favorites-api.service.ts # Favoritos → PostgreSQL
+    watch-later-api.service.ts
+    peliculas-api.service.ts # TMDB (sin cambios)
+  auth.ts                    # Sesión (id, username, email en localStorage)
 ```
 
-## Mejoras realizadas
+## Persistencia de datos
 
-- Refactor ligero en `home` para limpiar lógica repetida.
-- Mejora de estados API (cargando/error) y mensajes de feedback.
-- Optimización de favoritos/ver-más-tarde de API para evitar lecturas repetidas de `localStorage`.
-- Soporte visual en `Favoritos` y `Ver más tarde` para mostrar también películas guardadas desde API.
-- Fallback de imagen por defecto al fallar posters.
-- Ajustes de estilo y responsive básico en vistas secundarias.
-- Limpieza de código no utilizado y eliminación de estilos inline.
+| Dato | Dónde se guarda |
+|------|-----------------|
+| Sesión usuario (`id`, `username`, `email`) | `localStorage` |
+| Favoritos / ver más tarde (películas TMDB) | PostgreSQL vía API |
+| Favoritos / ver más tarde (Star Wars, Transformers) | `localStorage` (catálogo local) |
+| Búsqueda y listados TMDB | API TMDB en tiempo real |
+
+Si el backend no está disponible, las películas TMDB usan **fallback temporal** en `localStorage` (ver comentarios en `home.ts`).
 
 ## Comprobación de compilación
 
-Para validar que el proyecto compila correctamente:
-
-```bash
+```powershell
 npm run build
 ```
+
+## Credenciales TMDB
+
+Configura tu API key en `src/app/config/api.config.ts` si usas búsqueda/catálogo TMDB.

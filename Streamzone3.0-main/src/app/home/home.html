@@ -38,7 +38,7 @@
     <div class="perfil-container">
       <div class="user-info" *ngIf="user">
         <span class="user-greeting">Hola,</span>
-        <span class="user-name">{{ (user.nombre || user.email) | capitalize }}</span>
+        <span class="user-name">{{ (user.username || user.email) | capitalize }}</span>
       </div>
       <button class="perfil-btn" (click)="logout()" title="Cerrar Sesión">
         <span class="perfil-icon">👤</span>
