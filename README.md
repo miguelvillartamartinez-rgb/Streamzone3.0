@@ -288,11 +288,11 @@ Incluye: arranque, health check, login, TMDB, favoritos, ver más tarde, Postgre
 ## Autoría
 
 - **Proyecto:** StreamZone  
-- **Alumno/a:** [Nombre y apellidos del alumno]  
-- **Centro educativo:** [Nombre del centro]  
-- **Ciclo formativo:** [DAM / DAW / otro]  
-- **Curso académico:** [AAAA-AAAA]  
-- **Tutor/a:** [Nombre del tutor — completar antes de entrega]
+- **Alumno/a:** [MIGUEL VILLARTA Y ALEX PALENCIA]  
+- **Centro educativo:** [IES CAÑAVERAL]  
+- **Ciclo formativo:** [DAM]  
+- **Curso académico:** [2025/2026]  
+- **Tutor/a:** [ALBERTO BRAVO PEREZ]
 
 ---
 
