@@ -1,6 +1,12 @@
 const { pool } = require('../db');
+const { getStorageMode } = require('../storage/storageMode');
+const jsonUserStore = require('../storage/jsonUserStore');
 
 async function findById(id) {
+  if ((await getStorageMode()) === 'json') {
+    return jsonUserStore.findById(id);
+  }
+
   const result = await pool.query(
     `SELECT id, username, email, created_at
      FROM users
@@ -11,6 +17,10 @@ async function findById(id) {
 }
 
 async function findByEmail(email) {
+  if ((await getStorageMode()) === 'json') {
+    return jsonUserStore.findByEmail(email);
+  }
+
   const result = await pool.query(
     `SELECT id, username, email, password, created_at
      FROM users
@@ -21,6 +31,10 @@ async function findByEmail(email) {
 }
 
 async function createUser({ username, email, password }) {
+  if ((await getStorageMode()) === 'json') {
+    return jsonUserStore.createUser({ username, email, password });
+  }
+
   const result = await pool.query(
     `INSERT INTO users (username, email, password)
      VALUES ($1, $2, $3)

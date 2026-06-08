@@ -1,0 +1,47 @@
+[
+  {
+    "id": 1,
+    "tmdb_id": 11,
+    "title": "Star Wars: Episodio IV - Una Nueva Esperanza",
+    "overview": "La Princesa Leia es capturada y retenida como rehén por las fuerzas imperiales.",
+    "poster_path": "/2l05cFWJacyqGzSnHRDBok20i10.jpg",
+    "release_date": "1977-05-25",
+    "created_at": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": 2,
+    "tmdb_id": 27205,
+    "title": "Inception",
+    "overview": "Un ladrón que roba secretos corporativos a través del uso de la tecnología de compartir sueños.",
+    "poster_path": "/9gk7adHYeDvHkCSEqAvQNLF5jku.jpg",
+    "release_date": "2010-07-16",
+    "created_at": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": 3,
+    "tmdb_id": 155,
+    "title": "The Dark Knight",
+    "overview": "Batman se enfrenta al Joker, un criminal que desata el caos en Gotham.",
+    "poster_path": "/qJ2tWRXcWCMQ8EMKdsm7vZZ8Qob.jpg",
+    "release_date": "2008-07-18",
+    "created_at": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": 4,
+    "tmdb_id": 157336,
+    "title": "Interstellar",
+    "overview": "Un grupo de exploradores viaja a través de un agujero de gusano en el espacio.",
+    "poster_path": "/gEU2QniE6E77NI6lCU6M0nbVZv9.jpg",
+    "release_date": "2014-11-07",
+    "created_at": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": 5,
+    "tmdb_id": 185,
+    "title": "Transformers",
+    "overview": "La guerra entre Autobots y Decepticons llega a la Tierra.",
+    "poster_path": "/fAyRbQs7bkvqSsWiYm1vHzXoTdA.jpg",
+    "release_date": "2007-07-03",
+    "created_at": "2026-01-01T00:00:00.000Z"
+  }
+]

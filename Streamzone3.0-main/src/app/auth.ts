@@ -5,10 +5,13 @@ import { catchError, map } from 'rxjs/operators';
 import { UserApiService } from './services/user-api.service';
 import { SessionUser } from './models/backend-api.models';
 
-export interface LoginResult {
+export interface AuthResult {
   success: boolean;
   message?: string;
 }
+
+export type LoginResult = AuthResult;
+export type RegisterResult = AuthResult;
 
 @Injectable({
   providedIn: 'root',
@@ -20,6 +23,58 @@ export class AuthService {
   public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
 
   constructor(private userApi: UserApiService) {}
+
+  register(username: string, email: string, password: string): Promise<RegisterResult> {
+    return firstValueFrom(
+      this.userApi.register(username, email, password).pipe(
+        map((response) => {
+          if (response.success && response.user) {
+            this.saveSession(response.user);
+            this.isAuthenticatedSubject.next(true);
+            return { success: true, message: response.message };
+          }
+
+          return {
+            success: false,
+            message: response.message || 'No se pudo completar el registro',
+          };
+        }),
+        catchError((error) => {
+          console.error('[StreamZone] Error en registro:', error);
+
+          if (error?.status === 409) {
+            return of({
+              success: false,
+              message: error?.error?.message || 'El email o nombre de usuario ya está en uso',
+            });
+          }
+
+          if (error?.status === 400) {
+            return of({
+              success: false,
+              message: error?.error?.message || 'Datos de registro inválidos',
+            });
+          }
+
+          if (error?.status === 500) {
+            return of({
+              success: false,
+              message: error?.error?.message || 'Error interno del servidor',
+            });
+          }
+
+          if (error?.status === 0) {
+            return of({
+              success: false,
+              message: 'No se pudo conectar con el servidor. Comprueba que el backend esté en marcha.',
+            });
+          }
+
+          return throwError(() => error);
+        })
+      )
+    );
+  }
 
   login(email: string, password: string): Promise<LoginResult> {
     return firstValueFrom(
@@ -45,6 +100,20 @@ export class AuthService {
             return of({
               success: false,
               message: error?.error?.message || 'Email o contraseña incorrectos',
+            });
+          }
+
+          if (error?.status === 500) {
+            return of({
+              success: false,
+              message: error?.error?.message || 'Error interno del servidor',
+            });
+          }
+
+          if (error?.status === 0) {
+            return of({
+              success: false,
+              message: 'No se pudo conectar con el servidor. Comprueba que el backend esté en marcha.',
             });
           }
 

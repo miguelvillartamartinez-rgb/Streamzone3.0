@@ -3,6 +3,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const { testConnection } = require('./db');
+const { getStorageMode } = require('./storage/storageMode');
 const userRoutes = require('./routes/userRoutes');
 const movieRoutes = require('./routes/movieRoutes');
 const favoriteRoutes = require('./routes/favoriteRoutes');
@@ -25,21 +26,25 @@ app.use('/api/favorites', favoriteRoutes);
 app.use('/api/watch-later', watchLaterRoutes);
 
 app.get('/api/health', async (req, res) => {
-  let database = 'disconnected';
+  const storageMode = await getStorageMode();
+  let database = storageMode === 'json' ? 'json-fallback' : 'disconnected';
 
-  try {
-    const isConnected = await testConnection();
-    if (isConnected) {
-      database = 'connected';
+  if (storageMode === 'postgres') {
+    try {
+      const isConnected = await testConnection();
+      if (isConnected) {
+        database = 'connected';
+      }
+    } catch {
+      database = 'disconnected';
     }
-  } catch {
-    database = 'disconnected';
   }
 
   res.json({
     status: 'ok',
     message: 'StreamZone API funcionando correctamente',
     database,
+    storage: storageMode,
     timestamp: new Date().toISOString(),
   });
 });

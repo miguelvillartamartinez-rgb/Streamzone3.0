@@ -1,6 +1,12 @@
 const { pool } = require('../db');
+const { getStorageMode } = require('../storage/storageMode');
+const jsonMovieStore = require('../storage/jsonMovieStore');
 
 async function findAll() {
+  if ((await getStorageMode()) === 'json') {
+    return jsonMovieStore.findAll();
+  }
+
   const result = await pool.query(
     `SELECT id, tmdb_id, title, overview, poster_path, release_date, created_at
      FROM movies
@@ -10,6 +16,10 @@ async function findAll() {
 }
 
 async function findByTmdbId(tmdbId) {
+  if ((await getStorageMode()) === 'json') {
+    return jsonMovieStore.findByTmdbId(tmdbId);
+  }
+
   const result = await pool.query(
     `SELECT id, tmdb_id, title, overview, poster_path, release_date, created_at
      FROM movies
@@ -19,7 +29,12 @@ async function findByTmdbId(tmdbId) {
   return result.rows[0] || null;
 }
 
-async function create({ tmdb_id, title, overview, poster_path, release_date }) {
+async function create(movieData) {
+  if ((await getStorageMode()) === 'json') {
+    return jsonMovieStore.create(movieData);
+  }
+
+  const { tmdb_id, title, overview, poster_path, release_date } = movieData;
   const result = await pool.query(
     `INSERT INTO movies (tmdb_id, title, overview, poster_path, release_date)
      VALUES ($1, $2, $3, $4, $5)
@@ -30,6 +45,10 @@ async function create({ tmdb_id, title, overview, poster_path, release_date }) {
 }
 
 async function findOrCreate(movieData) {
+  if ((await getStorageMode()) === 'json') {
+    return jsonMovieStore.findOrCreate(movieData);
+  }
+
   const existing = await findByTmdbId(movieData.tmdb_id);
   if (existing) {
     return { movie: existing, created: false };

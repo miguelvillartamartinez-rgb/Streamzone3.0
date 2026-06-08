@@ -1,6 +1,14 @@
 const { pool } = require('../db');
+const { getStorageMode } = require('../storage/storageMode');
+const { createListStore } = require('../storage/jsonListStore');
+
+const jsonWatchLaterStore = createListStore('watch_later');
 
 async function findByUserId(userId) {
+  if ((await getStorageMode()) === 'json') {
+    return jsonWatchLaterStore.findByUserId(userId);
+  }
+
   const result = await pool.query(
     `SELECT
        w.id,
@@ -23,6 +31,10 @@ async function findByUserId(userId) {
 }
 
 async function findByUserAndMovie(userId, movieId) {
+  if ((await getStorageMode()) === 'json') {
+    return jsonWatchLaterStore.findByUserAndMovie(userId, movieId);
+  }
+
   const result = await pool.query(
     `SELECT id, user_id, movie_id, created_at
      FROM watch_later
@@ -33,6 +45,10 @@ async function findByUserAndMovie(userId, movieId) {
 }
 
 async function findById(id) {
+  if ((await getStorageMode()) === 'json') {
+    return jsonWatchLaterStore.findById(id);
+  }
+
   const result = await pool.query(
     `SELECT id, user_id, movie_id, created_at
      FROM watch_later
@@ -43,6 +59,10 @@ async function findById(id) {
 }
 
 async function create(userId, movieId) {
+  if ((await getStorageMode()) === 'json') {
+    return jsonWatchLaterStore.create(userId, movieId);
+  }
+
   const result = await pool.query(
     `INSERT INTO watch_later (user_id, movie_id)
      VALUES ($1, $2)
@@ -53,6 +73,10 @@ async function create(userId, movieId) {
 }
 
 async function deleteById(id) {
+  if ((await getStorageMode()) === 'json') {
+    return jsonWatchLaterStore.deleteById(id);
+  }
+
   const result = await pool.query(
     `DELETE FROM watch_later
      WHERE id = $1

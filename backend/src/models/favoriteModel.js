@@ -1,6 +1,14 @@
 const { pool } = require('../db');
+const { getStorageMode } = require('../storage/storageMode');
+const { createListStore } = require('../storage/jsonListStore');
+
+const jsonFavoriteStore = createListStore('favorites');
 
 async function findByUserId(userId) {
+  if ((await getStorageMode()) === 'json') {
+    return jsonFavoriteStore.findByUserId(userId);
+  }
+
   const result = await pool.query(
     `SELECT
        f.id,
@@ -23,6 +31,10 @@ async function findByUserId(userId) {
 }
 
 async function findByUserAndMovie(userId, movieId) {
+  if ((await getStorageMode()) === 'json') {
+    return jsonFavoriteStore.findByUserAndMovie(userId, movieId);
+  }
+
   const result = await pool.query(
     `SELECT id, user_id, movie_id, created_at
      FROM favorites
@@ -33,6 +45,10 @@ async function findByUserAndMovie(userId, movieId) {
 }
 
 async function findById(id) {
+  if ((await getStorageMode()) === 'json') {
+    return jsonFavoriteStore.findById(id);
+  }
+
   const result = await pool.query(
     `SELECT id, user_id, movie_id, created_at
      FROM favorites
@@ -43,6 +59,10 @@ async function findById(id) {
 }
 
 async function create(userId, movieId) {
+  if ((await getStorageMode()) === 'json') {
+    return jsonFavoriteStore.create(userId, movieId);
+  }
+
   const result = await pool.query(
     `INSERT INTO favorites (user_id, movie_id)
      VALUES ($1, $2)
@@ -53,6 +73,10 @@ async function create(userId, movieId) {
 }
 
 async function deleteById(id) {
+  if ((await getStorageMode()) === 'json') {
+    return jsonFavoriteStore.deleteById(id);
+  }
+
   const result = await pool.query(
     `DELETE FROM favorites
      WHERE id = $1

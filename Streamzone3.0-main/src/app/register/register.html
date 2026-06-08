@@ -1,0 +1,119 @@
+<div class="login-wrapper">
+  <div class="login-background">
+    <div class="gradient-orb orb-1"></div>
+    <div class="gradient-orb orb-2"></div>
+    <div class="gradient-orb orb-3"></div>
+  </div>
+
+  <div class="login-card">
+    <div class="login-header">
+      <h1 class="login-title">Únete a <span class="brand-name">StreamZone</span></h1>
+      <p class="login-subtitle">Crea tu cuenta para empezar</p>
+    </div>
+
+    <form (ngSubmit)="onSubmit()" #registerForm="ngForm">
+      <div class="login-group">
+        <label class="login-label" for="username">
+          <span class="label-icon">👤</span>
+          Nombre de usuario
+        </label>
+        <div class="input-wrapper">
+          <input
+            class="login-input"
+            type="text"
+            id="username"
+            name="username"
+            [(ngModel)]="username"
+            placeholder="Tu nombre de usuario"
+            required
+            autocomplete="username"
+            [disabled]="loading">
+        </div>
+      </div>
+
+      <div class="login-group">
+        <label class="login-label" for="email">
+          <span class="label-icon">✉</span>
+          Correo electrónico
+        </label>
+        <div class="input-wrapper">
+          <input
+            class="login-input"
+            type="email"
+            id="email"
+            name="email"
+            [(ngModel)]="email"
+            placeholder="tu@email.com"
+            required
+            autocomplete="email"
+            [disabled]="loading">
+        </div>
+      </div>
+
+      <div class="login-group">
+        <label class="login-label" for="password">
+          <span class="label-icon">🔒</span>
+          Contraseña
+        </label>
+        <div class="input-wrapper">
+          <input
+            class="login-input"
+            type="password"
+            id="password"
+            name="password"
+            [(ngModel)]="password"
+            placeholder="••••••••"
+            required
+            minlength="6"
+            autocomplete="new-password"
+            [disabled]="loading">
+        </div>
+      </div>
+
+      <div class="login-group">
+        <label class="login-label" for="confirmPassword">
+          <span class="label-icon">🔒</span>
+          Confirmar contraseña
+        </label>
+        <div class="input-wrapper">
+          <input
+            class="login-input"
+            type="password"
+            id="confirmPassword"
+            name="confirmPassword"
+            [(ngModel)]="confirmPassword"
+            placeholder="••••••••"
+            required
+            minlength="6"
+            autocomplete="new-password"
+            [disabled]="loading">
+        </div>
+      </div>
+
+      <div class="login-error" *ngIf="errorMessage">
+        <span class="error-icon">⚠</span>
+        {{ errorMessage }}
+      </div>
+
+      <button
+        type="submit"
+        class="login-button"
+        [disabled]="loading"
+        [class.loading]="loading">
+        <span *ngIf="!loading">Crear cuenta</span>
+        <span *ngIf="loading" class="button-loading">
+          <span class="spinner"></span>
+          Registrando...
+        </span>
+      </button>
+    </form>
+
+    <div class="login-divider">
+      <span>o</span>
+    </div>
+
+    <div class="login-footer">
+      <p>¿Ya tienes cuenta? <a routerLink="/login" class="footer-link">Inicia sesión</a></p>
+    </div>
+  </div>
+</div>
