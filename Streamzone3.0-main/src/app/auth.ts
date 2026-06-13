@@ -4,6 +4,7 @@ import { BehaviorSubject, firstValueFrom, of, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { UserApiService } from './services/user-api.service';
 import { SessionUser } from './models/backend-api.models';
+import { GMAIL_REQUIRED_MESSAGE, isGmailEmail } from './utils/gmail-email';
 
 export interface AuthResult {
   success: boolean;
@@ -25,6 +26,13 @@ export class AuthService {
   constructor(private userApi: UserApiService) {}
 
   register(username: string, email: string, password: string): Promise<RegisterResult> {
+    if (!isGmailEmail(email)) {
+      return Promise.resolve({
+        success: false,
+        message: GMAIL_REQUIRED_MESSAGE,
+      });
+    }
+
     return firstValueFrom(
       this.userApi.register(username, email, password).pipe(
         map((response) => {
@@ -77,6 +85,13 @@ export class AuthService {
   }
 
   login(email: string, password: string): Promise<LoginResult> {
+    if (!isGmailEmail(email)) {
+      return Promise.resolve({
+        success: false,
+        message: GMAIL_REQUIRED_MESSAGE,
+      });
+    }
+
     return firstValueFrom(
       this.userApi.login(email, password).pipe(
         map((response) => {
@@ -100,6 +115,13 @@ export class AuthService {
             return of({
               success: false,
               message: error?.error?.message || 'Email o contraseña incorrectos',
+            });
+          }
+
+          if (error?.status === 400) {
+            return of({
+              success: false,
+              message: error?.error?.message || 'Datos de inicio de sesión inválidos',
             });
           }
 

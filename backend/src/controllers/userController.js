@@ -1,4 +1,5 @@
 const userModel = require('../models/userModel');
+const { isGmailEmail } = require('../utils/emailValidation');
 
 function isEmpty(value) {
   return typeof value !== 'string' || value.trim() === '';
@@ -20,6 +21,13 @@ async function register(req, res) {
     return res.status(400).json({
       success: false,
       message: 'username, email y password son obligatorios',
+    });
+  }
+
+  if (!isGmailEmail(email)) {
+    return res.status(400).json({
+      success: false,
+      message: 'Debes usar una cuenta de Gmail (por ejemplo: tu@gmail.com)',
     });
   }
 
@@ -67,6 +75,13 @@ async function login(req, res) {
     return res.status(400).json({
       success: false,
       message: 'email y password son obligatorios',
+    });
+  }
+
+  if (!isGmailEmail(email)) {
+    return res.status(400).json({
+      success: false,
+      message: 'Debes usar una cuenta de Gmail (por ejemplo: tu@gmail.com)',
     });
   }
 
