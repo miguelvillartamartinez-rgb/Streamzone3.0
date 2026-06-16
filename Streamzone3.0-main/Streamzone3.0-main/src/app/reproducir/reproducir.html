@@ -1,0 +1,48 @@
+<div class="reproducir-wrapper">
+  <header class="reproducir-header">
+    <button type="button" class="btn-back" (click)="volverAHome()">← Volver</button>
+    <h1>{{ title }}</h1>
+  </header>
+
+  <div *ngIf="loading" class="reproducir-loading">Cargando reproducción...</div>
+  <div *ngIf="!loading && errorMessage" class="reproducir-error">{{ errorMessage }}</div>
+
+  <main *ngIf="!loading && !errorMessage" class="reproducir-main">
+    <div class="player-container">
+      <video
+        *ngIf="playbackMode === 'video'"
+        #videoPlayer
+        class="player-video"
+        controls
+        playsinline
+        preload="auto"
+        (error)="onVideoError()">
+        Tu navegador no soporta la reproducción de vídeo.
+      </video>
+
+      <iframe
+        *ngIf="playbackMode === 'iframe'"
+        class="player-iframe"
+        [src]="safeIframeSrc"
+        title="Reproductor de vídeo"
+        frameborder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        allowfullscreen>
+      </iframe>
+    </div>
+
+    <aside class="reproducir-info">
+      <img [src]="posterUrl" [alt]="title" class="info-poster" (error)="$any($event.target).src='assets/logoStreamZone.png'" />
+      <div class="info-content">
+        <h2>{{ title }}</h2>
+        <p *ngIf="trailerTitle" class="info-trailer">Tráiler: {{ trailerTitle }}</p>
+        <p *ngIf="genre" class="info-meta"><strong>Género:</strong> {{ genre }}</p>
+        <p *ngIf="durationMinutes" class="info-meta"><strong>Duración:</strong> {{ durationMinutes }} min</p>
+        <p *ngIf="releaseDate" class="info-meta"><strong>Estreno:</strong> {{ releaseDate }}</p>
+        <p *ngIf="overview" class="info-overview">{{ overview }}</p>
+        <p *ngIf="infoMessage" class="info-message">{{ infoMessage }}</p>
+        <p *ngIf="videoErrorMessage" class="info-message video-error">{{ videoErrorMessage }}</p>
+      </div>
+    </aside>
+  </main>
+</div>

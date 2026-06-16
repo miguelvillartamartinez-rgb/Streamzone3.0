@@ -17,6 +17,10 @@
           💡 Activa API para buscar más películas
         </span>
       </div>
+      <button class="menu-btn" routerLink="/alta-pelicula">
+        <span class="btn-icon">➕</span>
+        <span class="btn-text">Añadir película</span>
+      </button>
       <button class="menu-btn" routerLink="/favoritos">
         <span class="btn-icon">⭐</span>
         <span class="btn-text">Favoritos</span>
@@ -90,7 +94,7 @@
               [alt]="getNombreStarWars(i)"
               class="imagen-large">
             <div class="imagen-overlay">
-              <button class="imagen-play-btn">
+              <button class="imagen-play-btn" type="button" (click)="reproducirStarWars(i)" title="Reproducir">
                 <span class="play-icon-large">▶</span>
               </button>
             </div>
@@ -130,7 +134,7 @@
               [alt]="getNombreTransformers(i)"
               class="imagen-large">
             <div class="imagen-overlay">
-              <button class="imagen-play-btn">
+              <button class="imagen-play-btn" type="button" (click)="reproducirTransformers(i)" title="Reproducir">
                 <span class="play-icon-large">▶</span>
               </button>
             </div>
@@ -183,7 +187,7 @@
               class="imagen-large"
               (error)="onImageError($event)">
             <div class="imagen-overlay">
-              <button class="imagen-play-btn">
+              <button class="imagen-play-btn" type="button" (click)="reproducirPeliculaTmdb(pelicula)" title="Reproducir">
                 <span class="play-icon-large">▶</span>
               </button>
             </div>
@@ -201,6 +205,50 @@
             <h2>No se encontraron películas</h2>
             <p>No hay resultados para "{{ terminoBusqueda }}" en la API</p>
             <p class="sin-resultados-sugerencia">Intenta buscar con otro término o verifica tu conexión a internet</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="imagenes-section" *ngIf="peliculasManualesFiltradas.length > 0 || (!terminoBusqueda.trim() && !cargandoManuales)">
+        <div class="section-header">
+          <h2 class="section-title">
+            <span class="title-icon">📝</span>
+            Películas manuales (PostgreSQL)
+          </h2>
+          <p class="section-description">Películas dadas de alta desde StreamZone</p>
+        </div>
+
+        <div *ngIf="cargandoManuales" class="cargando-api">
+          <p>Cargando películas manuales...</p>
+        </div>
+
+        <div *ngIf="!cargandoManuales && errorManuales" class="api-error">
+          <p>{{ errorManuales }}</p>
+        </div>
+
+        <div *ngIf="!cargandoManuales && peliculasManualesFiltradas.length > 0" class="imagenes-grid">
+          <div class="imagen-card" *ngFor="let pelicula of peliculasManualesFiltradas">
+            <img
+              [src]="getPosterManual(pelicula)"
+              [alt]="pelicula.title"
+              class="imagen-large"
+              referrerpolicy="no-referrer"
+              (error)="onManualPosterError($event, pelicula)">
+            <div class="imagen-overlay">
+              <button class="imagen-play-btn" type="button" (click)="reproducirPeliculaManual(pelicula)" title="Reproducir">
+                <span class="play-icon-large">▶</span>
+              </button>
+            </div>
+            <div class="imagen-nombre">
+              <h3 class="pelicula-nombre">{{ pelicula.title | truncate:40 }}</h3>
+              <p class="pelicula-calificacion" *ngIf="pelicula.genre">{{ pelicula.genre }}</p>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="!cargandoManuales && peliculasManualesFiltradas.length === 0 && !errorManuales" class="sin-resultados-busqueda">
+          <div class="sin-resultados-content">
+            <p class="sin-resultados-sugerencia">Aún no hay películas manuales. Usa «Añadir película» para crear una.</p>
           </div>
         </div>
       </section>

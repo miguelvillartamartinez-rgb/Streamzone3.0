@@ -13,6 +13,9 @@
         <img [src]="pelicula.imagen" [alt]="pelicula.nombre" class="starwars-image" (error)="onImageError($event)">
         <div class="starwars-info">
           <h3 class="starwars-nombre">{{ pelicula.nombre | capitalize }}</h3>
+          <button class="reproducir-btn" (click)="reproducirPelicula(pelicula)" title="Reproducir">
+            ▶ Reproducir
+          </button>
           <button class="eliminar-btn" (click)="eliminarVerMasTarde(pelicula.id)" title="Eliminar de ver más tarde">
             ❌ Eliminar
           </button>
@@ -29,6 +32,9 @@
         <img [src]="pelicula.imagen" [alt]="pelicula.nombre" class="starwars-image" (error)="onImageError($event)">
         <div class="starwars-info">
           <h3 class="starwars-nombre">{{ pelicula.nombre | capitalize }}</h3>
+          <button class="reproducir-btn" (click)="reproducirPelicula(pelicula)" title="Reproducir">
+            ▶ Reproducir
+          </button>
           <button class="eliminar-btn" (click)="eliminarVerMasTardeTransformers(pelicula.id)" title="Eliminar de ver más tarde">
             ❌ Eliminar
           </button>
@@ -46,6 +52,9 @@
         <img [src]="pelicula.imagen" [alt]="pelicula.nombre" class="starwars-image" (error)="onImageError($event)">
         <div class="starwars-info">
           <h3 class="starwars-nombre">{{ pelicula.nombre | capitalize }}</h3>
+          <button class="reproducir-btn" (click)="reproducirPelicula(pelicula)" title="Reproducir">
+            ▶ Reproducir
+          </button>
           <button class="eliminar-btn" (click)="eliminarVerMasTardeApi(pelicula.id)" title="Eliminar de ver más tarde">
             ❌ Eliminar
           </button>

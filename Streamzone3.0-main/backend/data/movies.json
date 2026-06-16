@@ -6,6 +6,10 @@
     "overview": "La Princesa Leia es capturada y retenida como rehén por las fuerzas imperiales.",
     "poster_path": "/2l05cFWJacyqGzSnHRDBok20i10.jpg",
     "release_date": "1977-05-25",
+    "genre": null,
+    "duration_minutes": null,
+    "video_url": null,
+    "source": "tmdb",
     "created_at": "2026-01-01T00:00:00.000Z"
   },
   {
@@ -15,6 +19,10 @@
     "overview": "Un ladrón que roba secretos corporativos a través del uso de la tecnología de compartir sueños.",
     "poster_path": "/9gk7adHYeDvHkCSEqAvQNLF5jku.jpg",
     "release_date": "2010-07-16",
+    "genre": null,
+    "duration_minutes": null,
+    "video_url": null,
+    "source": "tmdb",
     "created_at": "2026-01-01T00:00:00.000Z"
   },
   {
@@ -24,6 +32,10 @@
     "overview": "Batman se enfrenta al Joker, un criminal que desata el caos en Gotham.",
     "poster_path": "/qJ2tWRXcWCMQ8EMKdsm7vZZ8Qob.jpg",
     "release_date": "2008-07-18",
+    "genre": null,
+    "duration_minutes": null,
+    "video_url": null,
+    "source": "tmdb",
     "created_at": "2026-01-01T00:00:00.000Z"
   },
   {
@@ -33,6 +45,10 @@
     "overview": "Un grupo de exploradores viaja a través de un agujero de gusano en el espacio.",
     "poster_path": "/gEU2QniE6E77NI6lCU6M0nbVZv9.jpg",
     "release_date": "2014-11-07",
+    "genre": null,
+    "duration_minutes": null,
+    "video_url": null,
+    "source": "tmdb",
     "created_at": "2026-01-01T00:00:00.000Z"
   },
   {
@@ -42,6 +58,114 @@
     "overview": "La guerra entre Autobots y Decepticons llega a la Tierra.",
     "poster_path": "/fAyRbQs7bkvqSsWiYm1vHzXoTdA.jpg",
     "release_date": "2007-07-03",
+    "genre": null,
+    "duration_minutes": null,
+    "video_url": null,
+    "source": "tmdb",
     "created_at": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": 6,
+    "tmdb_id": null,
+    "title": "Big Buck Bunny (Demo StreamZone)",
+    "overview": "Película manual de ejemplo para demostrar alta y reproducción en StreamZone.",
+    "poster_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Big_buck_bunny_poster_big.jpg/220px-Big_buck_bunny_poster_big.jpg",
+    "release_date": "2008-04-10",
+    "genre": "Animación",
+    "duration_minutes": 10,
+    "video_url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+    "source": "manual",
+    "created_at": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": 7,
+    "tmdb_id": null,
+    "title": "Prueba StreamZone",
+    "overview": "Película de prueba para comprobar el alta manual y la reproducción.",
+    "poster_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Big_buck_bunny_poster_big.jpg/220px-Big_buck_bunny_poster_big.jpg",
+    "release_date": "2026-01-01",
+    "genre": "animacion",
+    "duration_minutes": 92,
+    "video_url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+    "source": "manual",
+    "created_at": "2026-06-16T20:29:27.252Z"
+  },
+  {
+    "id": 8,
+    "tmdb_id": null,
+    "title": "pelicula prueba 2",
+    "overview": "prubea",
+    "poster_path": "https://www.w3schools.com/html/mov_bbb.mp4",
+    "release_date": "2002-01-01",
+    "genre": "animacion",
+    "duration_minutes": 10,
+    "video_url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+    "source": "manual",
+    "created_at": "2026-06-16T20:31:00.597Z"
+  },
+  {
+    "id": 9,
+    "tmdb_id": null,
+    "title": "pelicula 3",
+    "overview": "p",
+    "poster_path": "https://www.w3schools.com/html/mov_bbb.mp4",
+    "release_date": "1111-01-01",
+    "genre": "animacion",
+    "duration_minutes": 111,
+    "video_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Big_buck_bunny_poster_big.jpg/220px-Big_buck_bunny_poster_big.jpg",
+    "source": "manual",
+    "created_at": "2026-06-16T20:37:11.908Z"
+  },
+  {
+    "id": 10,
+    "tmdb_id": null,
+    "title": "prueba1",
+    "overview": "prueba",
+    "poster_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Big_buck_bunny_poster_big.jpg/220px-Big_buck_bunny_poster_big.jpg",
+    "release_date": "2002-01-01",
+    "genre": "animacion",
+    "duration_minutes": 1111,
+    "video_url": "https://www.w3schools.com/html/mov_bbb.mp4",
+    "source": "manual",
+    "created_at": "2026-06-16T21:34:59.787Z"
+  },
+  {
+    "id": 11,
+    "tmdb_id": null,
+    "title": "conejo",
+    "overview": "peli conejo",
+    "poster_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Big_buck_bunny_poster_big.jpg/220px-Big_buck_bunny_poster_big.jpg",
+    "release_date": "2002-01-01",
+    "genre": "animacion",
+    "duration_minutes": 10,
+    "video_url": "https://www.w3schools.com/html/mov_bbb.mp4",
+    "source": "manual",
+    "created_at": "2026-06-16T21:41:22.173Z"
+  },
+  {
+    "id": 12,
+    "tmdb_id": null,
+    "title": "cdhgdhdh",
+    "overview": "nvxc",
+    "poster_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Big_buck_bunny_poster_big.jpg/220px-Big_buck_bunny_poster_big.jpg",
+    "release_date": "2002-01-01",
+    "genre": "animacion",
+    "duration_minutes": 44,
+    "video_url": "https://www.w3schools.com/html/mov_bbb.mp4",
+    "source": "manual",
+    "created_at": "2026-06-16T21:55:20.173Z"
+  },
+  {
+    "id": 13,
+    "tmdb_id": null,
+    "title": "dv<s",
+    "overview": "<xc<zc",
+    "poster_path": "https://peach.blender.org/wp-content/uploads/title_anouncement.jpg",
+    "release_date": "2002-01-01",
+    "genre": "animacion",
+    "duration_minutes": 22,
+    "video_url": "https://www.w3schools.com/html/mov_bbb.mp4",
+    "source": "manual",
+    "created_at": "2026-06-16T21:56:56.421Z"
   }
 ]

@@ -7,8 +7,9 @@ import { TruncatePipe, CapitalizePipe } from '../pipes';
 import { PeliculasApiService, PeliculaTransformada } from '../services/peliculas-api.service';
 import { FavoritesApiService } from '../services/favorites-api.service';
 import { WatchLaterApiService } from '../services/watch-later-api.service';
-import { toAddMovieListPayload } from '../services/api-movie.helper';
-import { SessionUser } from '../models/backend-api.models';
+import { toAddMovieListPayload, buildPosterUrl } from '../services/api-movie.helper';
+import { SessionUser, ApiMovie } from '../models/backend-api.models';
+import { MoviesApiService } from '../services/movies-api.service';
 
 @Component({
   selector: 'app-home',
@@ -27,6 +28,10 @@ export class Home implements OnInit {
   
   peliculasAPI: PeliculaTransformada[] = [];
   peliculasAPIFiltradas: PeliculaTransformada[] = [];
+  peliculasManuales: ApiMovie[] = [];
+  peliculasManualesFiltradas: ApiMovie[] = [];
+  cargandoManuales = false;
+  errorManuales = '';
   cargandoAPI: boolean = false;
   errorAPI: string = '';
   usarAPI: boolean = false;
@@ -68,6 +73,7 @@ export class Home implements OnInit {
     private peliculasApi: PeliculasApiService,
     private favoritesApi: FavoritesApiService,
     private watchLaterApi: WatchLaterApiService,
+    private moviesApi: MoviesApiService,
     private cdr: ChangeDetectorRef
   ) {
     afterNextRender(() => {
@@ -83,17 +89,55 @@ export class Home implements OnInit {
     this.cargarVerMasTardeLocales();
     this.filtrarPeliculas();
     this.cargarPeliculasPopularesAPI();
+    this.cargarPeliculasManuales();
+  }
+
+  cargarPeliculasManuales() {
+    this.cargandoManuales = true;
+    this.errorManuales = '';
+
+    this.moviesApi.getAll().subscribe({
+      next: (response) => {
+        this.peliculasManuales = (response.movies ?? []).filter((movie) => movie.source === 'manual');
+        this.filtrarPeliculasManuales();
+        this.cargandoManuales = false;
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        console.error('[StreamZone] Error al cargar películas manuales:', error);
+        this.peliculasManuales = [];
+        this.peliculasManualesFiltradas = [];
+        this.errorManuales = 'No se pudieron cargar las películas manuales.';
+        this.cargandoManuales = false;
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  filtrarPeliculasManuales() {
+    if (!this.terminoBusqueda.trim()) {
+      this.peliculasManualesFiltradas = [...this.peliculasManuales];
+      return;
+    }
+
+    const termino = this.normalizarTexto(this.terminoBusqueda);
+    this.peliculasManualesFiltradas = this.peliculasManuales.filter((movie) =>
+      this.normalizarTexto(movie.title).includes(termino)
+    );
   }
 
   filtrarPeliculas() {
     if (!this.terminoBusqueda.trim()) {
       this.imagenesStFiltradas = [...this.imagenesSt];
       this.imagenesTransformersFiltradas = [...this.imagenesTransformers];
+      this.filtrarPeliculasManuales();
       if (this.usarAPI) {
         this.peliculasAPIFiltradas = [...this.peliculasAPI];
       }
       return;
     }
+
+    this.filtrarPeliculasManuales();
 
     if (this.usarAPI) {
       if (this.terminoBusqueda.trim().length >= 2) {
@@ -355,6 +399,15 @@ export class Home implements OnInit {
     img.src = 'assets/logoStreamZone.png';
   }
 
+  onManualPosterError(event: Event, pelicula: ApiMovie) {
+    const img = event.target as HTMLImageElement;
+    const expected = buildPosterUrl(pelicula.poster_path);
+
+    if (expected === 'assets/logoStreamZone.png') {
+      img.src = expected;
+    }
+  }
+
   logout() {
     this.authService.logout();
     this.router.navigate(['/login']);
@@ -421,6 +474,44 @@ export class Home implements OnInit {
 
   getImagenAPI(pelicula: PeliculaTransformada): string {
     return pelicula.imagen || 'assets/logoStreamZone.png';
+  }
+
+  getPosterManual(pelicula: ApiMovie): string {
+    return buildPosterUrl(pelicula.poster_path);
+  }
+
+  reproducirPeliculaManual(pelicula: ApiMovie) {
+    this.router.navigate(['/reproducir'], {
+      queryParams: { origen: 'db', id: pelicula.id },
+    });
+  }
+
+  reproducirPeliculaTmdb(pelicula: PeliculaTransformada) {
+    this.router.navigate(['/reproducir'], {
+      queryParams: { origen: 'tmdb', tmdbId: pelicula.id },
+    });
+  }
+
+  reproducirStarWars(num: number) {
+    this.router.navigate(['/reproducir'], {
+      queryParams: {
+        origen: 'local',
+        saga: 'starwars',
+        num,
+        titulo: this.getNombreStarWars(num),
+      },
+    });
+  }
+
+  reproducirTransformers(num: number) {
+    this.router.navigate(['/reproducir'], {
+      queryParams: {
+        origen: 'local',
+        saga: 'transformers',
+        num,
+        titulo: this.getNombreTransformers(num),
+      },
+    });
   }
 
   toggleFavoritoAPI(pelicula: PeliculaTransformada) {

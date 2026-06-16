@@ -11,6 +11,9 @@ interface PeliculaVerMasTarde {
   nombre: string;
   imagen: string;
   origen: 'local' | 'api';
+  tmdbId?: number;
+  saga?: 'starwars' | 'transformers';
+  localNum?: number;
 }
 
 @Component({
@@ -72,7 +75,9 @@ export class VerMasTarde implements OnInit {
         id: id,
         nombre: this.nombresStarWars[id - 1] || `Star Wars ${id}`,
         imagen: `assets/StarWars${id}.png`,
-        origen: 'local'
+        origen: 'local',
+        saga: 'starwars',
+        localNum: id,
       }));
     }
   }
@@ -86,7 +91,9 @@ export class VerMasTarde implements OnInit {
         id: id,
         nombre: this.nombresTransformers[id - 1] || `Transformers ${id}`,
         imagen: `assets/Transformers${id}.png`,
-        origen: 'local'
+        origen: 'local',
+        saga: 'transformers',
+        localNum: id,
       }));
     }
   }
@@ -158,6 +165,26 @@ export class VerMasTarde implements OnInit {
     this.router.navigate(['/home']);
   }
 
+  reproducirPelicula(pelicula: PeliculaVerMasTarde) {
+    if (pelicula.origen === 'api' && pelicula.tmdbId) {
+      this.router.navigate(['/reproducir'], {
+        queryParams: { origen: 'tmdb', tmdbId: pelicula.tmdbId },
+      });
+      return;
+    }
+
+    if (pelicula.saga && pelicula.localNum) {
+      this.router.navigate(['/reproducir'], {
+        queryParams: {
+          origen: 'local',
+          saga: pelicula.saga,
+          num: pelicula.localNum,
+          titulo: pelicula.nombre,
+        },
+      });
+    }
+  }
+
   onImageError(event: Event) {
     const img = event.target as HTMLImageElement;
     img.src = 'assets/logoStreamZone.png';
@@ -169,6 +196,7 @@ export class VerMasTarde implements OnInit {
       nombre: item.nombre,
       imagen: item.imagen,
       origen: 'api',
+      tmdbId: item.tmdbId,
     };
   }
 }

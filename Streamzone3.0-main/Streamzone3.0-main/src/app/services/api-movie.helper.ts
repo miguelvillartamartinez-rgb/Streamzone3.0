@@ -2,16 +2,28 @@ import { API_CONFIG } from '../config/api.config';
 import { PeliculaTransformada } from './peliculas-api.service';
 import { AddMovieListPayload } from '../models/backend-api.models';
 
+const STREAMZONE_POSTER_PLACEHOLDER = 'assets/logoStreamZone.png';
+
+function isExternalPosterUrl(value: string): boolean {
+  return /^https?:\/\//i.test(value);
+}
+
+function looksLikeVideoUrl(value: string): boolean {
+  return /\.(mp4|webm|ogg|mov|m3u8)(\?.*)?$/i.test(value);
+}
+
 export function buildPosterUrl(posterPath: string | null | undefined): string {
-  if (!posterPath) {
-    return 'assets/logoStreamZone.png';
+  const trimmed = posterPath?.trim();
+
+  if (!trimmed || looksLikeVideoUrl(trimmed)) {
+    return STREAMZONE_POSTER_PLACEHOLDER;
   }
 
-  if (posterPath.startsWith('http')) {
-    return posterPath;
+  if (isExternalPosterUrl(trimmed)) {
+    return trimmed;
   }
 
-  return `${API_CONFIG.TMDB_IMAGE_BASE_URL}${posterPath}`;
+  return `${API_CONFIG.TMDB_IMAGE_BASE_URL}${trimmed.startsWith('/') ? trimmed : `/${trimmed}`}`;
 }
 
 export function extractPosterPath(imagen: string): string | null {

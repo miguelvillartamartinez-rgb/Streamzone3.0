@@ -38,6 +38,18 @@ export interface PeliculaTransformada {
   release_date: string | null;
 }
 
+export interface TmdbVideoItem {
+  key: string;
+  site: string;
+  type: string;
+  name: string;
+}
+
+export interface TmdbTrailerResult {
+  youtubeKey: string | null;
+  title: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -179,6 +191,38 @@ export class PeliculasApiService {
         catchError(error => {
           console.error('Error al obtener películas mejor valoradas:', error);
           return of([]);
+        })
+      );
+  }
+
+  /**
+   * Obtiene vídeos/trailers de una película TMDB
+   */
+  obtenerVideosPelicula(id: number, idioma: string = 'es-ES'): Observable<TmdbTrailerResult> {
+    const params = new HttpParams()
+      .set('api_key', this.apiKey)
+      .set('language', idioma);
+
+    return this.http
+      .get<{ results: TmdbVideoItem[] }>(`${this.baseUrl}/movie/${id}/videos`, { params })
+      .pipe(
+        map((response) => {
+          const results = response.results ?? [];
+          const trailer = results.find(
+            (video) =>
+              video.site === 'YouTube' && (video.type === 'Trailer' || video.type === 'Teaser')
+          );
+          const anyYoutube = results.find((video) => video.site === 'YouTube');
+          const selected = trailer ?? anyYoutube ?? null;
+
+          return {
+            youtubeKey: selected?.key ?? null,
+            title: selected?.name ?? '',
+          };
+        }),
+        catchError((error) => {
+          console.error(`Error al obtener vídeos de película ${id}:`, error);
+          return of({ youtubeKey: null, title: '' });
         })
       );
   }

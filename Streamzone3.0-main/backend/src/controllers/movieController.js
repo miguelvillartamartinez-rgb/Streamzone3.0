@@ -1,5 +1,5 @@
 const movieModel = require('../models/movieModel');
-const { parseMovieInput } = require('../utils/movieValidation');
+const { parseMovieInput, parseManualMovieInput } = require('../utils/movieValidation');
 
 async function getAllMovies(req, res) {
   try {
@@ -11,6 +11,39 @@ async function getAllMovies(req, res) {
     });
   } catch (error) {
     console.error('Error en getAllMovies:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Error interno del servidor',
+    });
+  }
+}
+
+async function getMovieById(req, res) {
+  const movieId = Number(req.params.id);
+
+  if (!Number.isInteger(movieId) || movieId <= 0) {
+    return res.status(400).json({
+      success: false,
+      message: 'id debe ser un número entero válido',
+    });
+  }
+
+  try {
+    const movie = await movieModel.findById(movieId);
+
+    if (!movie) {
+      return res.status(404).json({
+        success: false,
+        message: 'Película no encontrada',
+      });
+    }
+
+    return res.json({
+      success: true,
+      movie,
+    });
+  } catch (error) {
+    console.error('Error en getMovieById:', error);
     return res.status(500).json({
       success: false,
       message: 'Error interno del servidor',
@@ -45,7 +78,36 @@ async function createOrGetMovie(req, res) {
   }
 }
 
+async function createManualMovie(req, res) {
+  const validation = parseManualMovieInput(req.body);
+  if (!validation.valid) {
+    return res.status(400).json({
+      success: false,
+      message: validation.message,
+    });
+  }
+
+  try {
+    const movie = await movieModel.createManual(validation.data);
+
+    return res.status(201).json({
+      success: true,
+      message: 'Película manual creada correctamente',
+      created: true,
+      movie,
+    });
+  } catch (error) {
+    console.error('Error en createManualMovie:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Error interno del servidor',
+    });
+  }
+}
+
 module.exports = {
   getAllMovies,
+  getMovieById,
   createOrGetMovie,
+  createManualMovie,
 };

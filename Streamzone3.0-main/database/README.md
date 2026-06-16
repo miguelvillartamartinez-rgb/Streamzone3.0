@@ -6,10 +6,22 @@ Scripts SQL para crear y poblar la base de datos **PostgreSQL** de StreamZone.
 
 ```
 database/
-├── schema.sql   # Tablas: users, movies, favorites, watch_later
-├── seed.sql     # Datos de prueba
+├── schema.sql                        # Tablas: users, movies, favorites, watch_later
+├── seed.sql                          # Datos de prueba
+├── migrations/
+│   └── 001_extend_movies.sql         # Ampliación movies (alta manual, reproducción)
 └── README.md
 ```
+
+## Migración en bases de datos existentes
+
+Si ya ejecutaste un `schema.sql` anterior sin los campos `genre`, `duration_minutes`, `video_url` y `source`, aplica:
+
+```powershell
+psql -U postgres -d streamzone -f database/migrations/001_extend_movies.sql
+```
+
+Después puedes insertar la película manual de ejemplo del `seed.sql` o crear una desde `/alta-pelicula`.
 
 ## Requisitos
 

@@ -54,7 +54,9 @@ El servidor queda en **http://localhost:4000**.
 | POST | `/api/users/register` | Registro |
 | POST | `/api/users/login` | Login |
 | GET | `/api/movies` | Listar películas guardadas |
+| GET | `/api/movies/:id` | Detalle de película por id interno |
 | POST | `/api/movies` | Crear o devolver película por `tmdb_id` |
+| POST | `/api/movies/manual` | Alta manual completa (`source=manual`) |
 | GET | `/api/favorites/:userId` | Favoritos de un usuario (con datos de película) |
 | POST | `/api/favorites` | Añadir favorito |
 | DELETE | `/api/favorites/:id` | Eliminar favorito |

@@ -45,6 +45,20 @@ INSERT INTO movies (tmdb_id, title, overview, poster_path, release_date) VALUES
   '2007-07-03'
 );
 
+-- Película manual de ejemplo (reproducción demo)
+INSERT INTO movies (tmdb_id, title, overview, poster_path, release_date, genre, duration_minutes, video_url, source)
+VALUES (
+  NULL,
+  'Big Buck Bunny (Demo StreamZone)',
+  'Película manual de ejemplo para demostrar alta y reproducción en StreamZone.',
+  'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Big_buck_bunny_poster_big.jpg/220px-Big_buck_bunny_poster_big.jpg',
+  '2008-04-10',
+  'Animación',
+  10,
+  'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+  'manual'
+);
+
 -- Favoritos del usuario admin (películas con id 1, 2 y 3)
 INSERT INTO favorites (user_id, movie_id) VALUES
 (1, 1),

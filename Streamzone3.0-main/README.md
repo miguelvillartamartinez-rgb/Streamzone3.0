@@ -149,6 +149,14 @@ En Windows, si `psql` no está en el PATH:
 
 Más detalles en [database/README.md](database/README.md).
 
+### Migración para bases de datos existentes
+
+Si ya creaste la BD con el esquema anterior, ejecuta:
+
+```powershell
+psql -U postgres -d streamzone -f database/migrations/001_extend_movies.sql
+```
+
 ---
 
 ## 3. Configuración del backend (`backend/.env`)
@@ -227,6 +235,8 @@ Tras ejecutar `seed.sql`:
 |---------------|-------------|
 | Login / sesión | Autenticación contra PostgreSQL; sesión en `localStorage` (`id`, `username`, `email`); requiere Gmail/Googlemail |
 | Registro | Pantalla `/register` conectada a `POST /api/users/register`; enlace desde login; requiere Gmail/Googlemail |
+| Alta de película | Formulario `/alta-pelicula` → `POST /api/movies/manual` (PostgreSQL, `source=manual`) |
+| Reproducción | Vista `/reproducir` con query params (`db`, `tmdb`, `local`) |
 | Home | Catálogo local y modo TMDB con búsqueda |
 | Favoritos | Listado y eliminación de películas TMDB guardadas en BD |
 | Ver más tarde | Lista personal persistida en PostgreSQL |
@@ -238,6 +248,8 @@ Tras ejecutar `seed.sql`:
 |------|----------|--------|
 | `/login` | Inicio de sesión | Público (redirige a `/home` si ya hay sesión) |
 | `/register` | Registro de usuario | Público (redirige a `/home` si ya hay sesión) |
+| `/alta-pelicula` | Alta manual de película | Requiere sesión |
+| `/reproducir` | Reproducción de película | Requiere sesión |
 | `/home` | Catálogo principal | Requiere sesión |
 | `/favoritos` | Lista de favoritos | Requiere sesión |
 | `/ver-mas-tarde` | Ver más tarde | Requiere sesión |
@@ -249,6 +261,8 @@ Tras ejecutar `seed.sql`:
 | GET | `/api/health` | Estado de API y conexión BD |
 | POST | `/api/users/login` | Inicio de sesión |
 | POST | `/api/users/register` | Registro de usuario (también disponible en `/register`) |
+| POST | `/api/movies/manual` | Alta manual de película completa |
+| GET | `/api/movies/:id` | Detalle de película por id interno |
 | GET/POST | `/api/favorites` | Favoritos |
 | GET/POST | `/api/watch-later` | Ver más tarde |
 | GET/POST | `/api/movies` | Catálogo persistido |
@@ -257,11 +271,11 @@ Tras ejecutar `seed.sql`:
 
 ## Pruebas realizadas
 
-Se documentaron **16 casos de prueba** y **6 integraciones** extremo a extremo en:
+Se documentaron **20 casos de prueba** y **6 integraciones** extremo a extremo en:
 
 📄 **[PRUEBAS.md](PRUEBAS.md)**
 
-Incluye: arranque, health check, login, registro, TMDB, favoritos, ver más tarde, PostgreSQL, proxy y evidencias sugeridas para la memoria.
+Incluye: arranque, health check, login, registro, alta manual, reproducción, TMDB, favoritos, ver más tarde, PostgreSQL, proxy y evidencias sugeridas para la memoria.
 
 ---
 

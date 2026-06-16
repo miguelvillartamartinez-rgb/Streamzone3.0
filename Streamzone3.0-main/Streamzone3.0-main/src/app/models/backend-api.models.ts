@@ -1,10 +1,14 @@
 export interface ApiMovie {
   id: number;
-  tmdb_id: number;
+  tmdb_id: number | null;
   title: string;
   overview: string | null;
   poster_path: string | null;
   release_date: string | null;
+  genre?: string | null;
+  duration_minutes?: number | null;
+  video_url?: string | null;
+  source?: 'tmdb' | 'manual' | 'local' | string;
   created_at?: string;
 }
 
@@ -79,4 +83,33 @@ export interface AddMovieListPayload {
   overview?: string | null;
   poster_path?: string | null;
   release_date?: string | null;
+}
+
+export interface MoviesListResponse {
+  success: boolean;
+  count: number;
+  movies: ApiMovie[];
+}
+
+export interface MovieDetailResponse {
+  success: boolean;
+  message?: string;
+  movie: ApiMovie;
+}
+
+export interface CreateManualMoviePayload {
+  title: string;
+  overview?: string | null;
+  release_date?: string | null;
+  genre?: string | null;
+  duration_minutes?: number | null;
+  poster_path?: string | null;
+  video_url?: string | null;
+}
+
+export interface CreateManualMovieResponse {
+  success: boolean;
+  message?: string;
+  created?: boolean;
+  movie?: ApiMovie;
 }

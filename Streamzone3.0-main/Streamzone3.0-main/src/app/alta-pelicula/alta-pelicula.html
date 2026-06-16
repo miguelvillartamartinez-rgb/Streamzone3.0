@@ -1,0 +1,58 @@
+<div class="alta-wrapper">
+  <div class="alta-card">
+    <div class="alta-header">
+      <h1>Añadir película</h1>
+      <p>Completa los datos para guardar una película manual en StreamZone.</p>
+    </div>
+
+    <form (ngSubmit)="onSubmit()" #altaForm="ngForm">
+      <div class="form-group">
+        <label for="title">Título *</label>
+        <input id="title" name="title" type="text" [(ngModel)]="title" required maxlength="150" [disabled]="loading" />
+      </div>
+
+      <div class="form-group">
+        <label for="overview">Sinopsis</label>
+        <textarea id="overview" name="overview" rows="4" [(ngModel)]="overview" [disabled]="loading"></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="releaseDate">Año o fecha (AAAA o AAAA-MM-DD)</label>
+          <input id="releaseDate" name="releaseDate" type="text" [(ngModel)]="releaseDate" placeholder="2024" [disabled]="loading" />
+        </div>
+
+        <div class="form-group">
+          <label for="genre">Género</label>
+          <input id="genre" name="genre" type="text" [(ngModel)]="genre" placeholder="Acción" [disabled]="loading" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="durationMinutes">Duración (minutos)</label>
+        <input id="durationMinutes" name="durationMinutes" type="number" min="1" [(ngModel)]="durationMinutes" [disabled]="loading" />
+      </div>
+
+      <div class="form-group">
+        <label for="posterPath">URL del póster</label>
+        <input id="posterPath" name="posterPath" type="url" [(ngModel)]="posterPath" placeholder="https://..." [disabled]="loading" />
+      </div>
+
+      <div class="form-group">
+        <label for="videoUrl">URL de vídeo o reproducción</label>
+        <input id="videoUrl" name="videoUrl" type="url" [(ngModel)]="videoUrl" placeholder="https://...mp4 o YouTube" [disabled]="loading" />
+        <p class="field-hint">Puedes usar MP4, WebM, assets/... o un enlace de YouTube/Vimeo.</p>
+      </div>
+
+      <div class="form-message error" *ngIf="errorMessage">{{ errorMessage }}</div>
+      <div class="form-message success" *ngIf="successMessage">{{ successMessage }}</div>
+
+      <div class="form-actions">
+        <button type="button" class="btn-secondary" (click)="volverAHome()" [disabled]="loading">Cancelar</button>
+        <button type="submit" class="btn-primary" [disabled]="loading">
+          {{ loading ? 'Guardando...' : 'Guardar película' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

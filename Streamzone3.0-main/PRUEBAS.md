@@ -38,6 +38,10 @@ Proyecto: **StreamZone** — plataforma web estilo streaming con Angular, Node.j
 | P-14 | Proxy `/api` Angular → backend | 1. Frontend en `ng serve` (proxy activo).<br>2. Login o favoritos desde la app.<br>3. Pestaña Red: peticiones a `/api/...` (no a `:4000` directo en URL del navegador). | Peticiones relativas `/api/*` resueltas a `localhost:4000` por proxy. | Comunicación correcta; CORS sin bloqueos en desarrollo. | ✅ Correcto |
 | P-15 | Registro correcto | 1. Ir a `/register` (o enlace «Regístrate ahora» en login).<br>2. Completar username, email Gmail nuevo, contraseña y confirmación.<br>3. Pulsar **Crear cuenta**. | `POST /api/users/register` con 201; redirección a `/home`; sesión en `localStorage` (`id`, `username`, `email`). | Usuario creado en PostgreSQL; acceso a Home. | ✅ Correcto |
 | P-16 | Registro fallido | 1. En `/register`, probar email no Gmail (ej. `user@test.com`) o email ya registrado.<br>2. Pulsar **Crear cuenta**. | Mensaje de error claro; no redirección a Home; no sesión creada. | Error de validación Gmail o 409 por duplicado. | ✅ Correcto |
+| P-17 | Alta manual de película | 1. Login correcto.<br>2. Ir a `/alta-pelicula`.<br>3. Completar formulario (título, sinopsis, género, duración, poster, video_url).<br>4. Pulsar **Guardar película**. | `POST /api/movies/manual` con 201; película en PostgreSQL con `source=manual` y `tmdb_id` NULL. | Película creada y visible en Home. | ✅ Correcto |
+| P-18 | Reproducción manual | 1. Tras P-17, pulsar ▶ en película manual o abrir `/reproducir?origen=db&id=ID`. | Reproductor `<video>` o iframe según `video_url`; metadatos visibles. | Reproducción funcional con URL guardada o demo. | ✅ Correcto |
+| P-19 | Reproducción TMDB | 1. En Home (modo TMDB), pulsar ▶ en una película.<br>2. Abrir `/reproducir?origen=tmdb&tmdbId=ID`. | Tráiler YouTube vía TMDB `/movie/{id}/videos` o vídeo demo con aviso. | Reproducción demostrable. | ✅ Correcto |
+| P-20 | Reproducción local | 1. En Home, pulsar ▶ en Star Wars o Transformers.<br>2. Abrir `/reproducir?origen=local&saga=starwars&num=1`. | Vídeo demo desde config local; título de la saga visible. | Reproducción demo funcional. | ✅ Correcto |
 
 **Leyenda de estado:** ✅ Correcto · ⚠️ Parcial · ❌ Incorrecto
 
@@ -155,11 +159,12 @@ UNION ALL SELECT 'watch_later', COUNT(*)::text FROM watch_later;
 1. P-01 → P-02 (backend y base de datos).
 2. P-03 → P-05 (frontend y autenticación).
 3. P-15 → P-16 (registro de usuario en `/register`).
-4. P-14 (comprobar proxy en pestaña Red del navegador).
-5. P-06 → P-09 (flujo favoritos TMDB).
-6. P-10 → P-12 (flujo ver más tarde TMDB).
-7. P-13 (validación en PostgreSQL).
-8. Revisar integraciones I-01 a I-07 como checklist transversal.
+4. P-17 → P-20 (alta manual y reproducción).
+5. P-14 (comprobar proxy en pestaña Red del navegador).
+6. P-06 → P-09 (flujo favoritos TMDB).
+7. P-10 → P-12 (flujo ver más tarde TMDB).
+8. P-13 (validación en PostgreSQL).
+9. Revisar integraciones I-01 a I-07 como checklist transversal.
 
 ---
 
@@ -170,6 +175,7 @@ Para cada bloque funcional, se recomienda capturar:
 - Captura de `GET /api/health` con `database: "connected"`.
 - Captura de login correcto e incorrecto.
 - Captura de registro correcto (P-15) y registro fallido (P-16).
+- Captura de alta manual (P-17) y reproducción manual/TMDB/local (P-18 a P-20).
 - Captura de búsqueda TMDB en Home.
 - Captura de Favoritos y Ver más tarde con películas TMDB.
 - Captura de resultado de consulta SQL (`favorites` / `watch_later`).

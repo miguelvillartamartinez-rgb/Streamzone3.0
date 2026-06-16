@@ -10,16 +10,23 @@ CREATE TABLE users (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Tabla de películas (catálogo persistido desde TMDB u otras fuentes)
+-- Tabla de películas (catálogo persistido desde TMDB, alta manual u otras fuentes)
 CREATE TABLE movies (
   id SERIAL PRIMARY KEY,
-  tmdb_id INTEGER NOT NULL UNIQUE,
+  tmdb_id INTEGER,
   title VARCHAR(150) NOT NULL,
   overview TEXT,
   poster_path VARCHAR(255),
   release_date DATE,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  genre VARCHAR(100),
+  duration_minutes INTEGER,
+  video_url VARCHAR(512),
+  source VARCHAR(20) NOT NULL DEFAULT 'tmdb',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT chk_movies_source CHECK (source IN ('tmdb', 'manual', 'local'))
 );
+
+CREATE UNIQUE INDEX uq_movies_tmdb_id ON movies (tmdb_id) WHERE tmdb_id IS NOT NULL;
 
 -- Favoritos de cada usuario
 CREATE TABLE favorites (
