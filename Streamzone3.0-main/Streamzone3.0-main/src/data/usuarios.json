@@ -1,0 +1,18 @@
+[
+  {
+    "id": 1,
+    "email": "admin@streamzone.com",
+    "contraseña": "admin123",
+    "nombre": "Administrador"
+  },
+  {
+    "id": 2,
+    "email": "usuario@streamzone.com",
+    "contraseña": "usuario123",
+    "nombre": "Usuario Demo"
+  }
+]
+
+
+
+

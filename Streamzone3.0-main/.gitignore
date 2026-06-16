@@ -1,0 +1,11 @@
+node_modules/
+.env
+backend/.env
+dist/
+.angular/
+.vscode/
+
+Streamzone3.0-main/node_modules/
+Streamzone3.0-main/dist/
+Streamzone3.0-main/.angular/
+backend/node_modules/

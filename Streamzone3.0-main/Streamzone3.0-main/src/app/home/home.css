@@ -1,0 +1,976 @@
+/* ============================================
+   CONTENEDOR PRINCIPAL
+   ============================================ */
+.home-wrapper {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #0a1a33 0%, #0f2342 50%, #0a1a33 100%);
+  color: white;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+}
+
+/* ============================================
+   HEADER MEJORADO
+   ============================================ */
+.header {
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+  background: rgba(10, 26, 51, 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 40px;
+  box-sizing: border-box;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.logo-container {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+}
+
+.logo {
+  height: 50px;
+  width: auto;
+  object-fit: contain;
+  max-width: 200px;
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+.logo:hover {
+  transform: scale(1.05);
+}
+
+/* ============================================
+   MENÚ NAVEGACIÓN
+   ============================================ */
+.menu {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  padding: 0 20px;
+}
+
+/* Buscador en el header */
+.busqueda-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-width: 250px;
+  max-width: 400px;
+  flex: 1;
+}
+
+.busqueda-input-header {
+  width: 100%;
+  padding: 10px 40px 10px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 14px;
+  font-weight: 400;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.busqueda-input-header::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.busqueda-input-header:focus {
+  outline: none;
+  border-color: rgba(255, 217, 75, 0.5);
+  background: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 4px 12px rgba(255, 217, 75, 0.2);
+}
+
+.busqueda-icon-header {
+  position: absolute;
+  right: 12px;
+  font-size: 16px;
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+.busqueda-hint {
+  position: absolute;
+  right: 40px;
+  font-size: 11px;
+  color: rgba(255, 217, 75, 0.8);
+  pointer-events: none;
+  white-space: nowrap;
+  opacity: 0.8;
+}
+
+.menu-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.menu-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.menu-btn:active {
+  transform: translateY(0);
+}
+
+.btn-icon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.btn-text {
+  font-weight: 500;
+}
+
+/* Botón de API en el header */
+.api-toggle-btn.active {
+  background: rgba(100, 181, 246, 0.3) !important;
+  border-color: rgba(100, 181, 246, 0.6) !important;
+  box-shadow: 0 0 15px rgba(100, 181, 246, 0.4) !important;
+}
+
+.api-toggle-btn {
+  background: rgba(100, 181, 246, 0.2);
+  border-color: rgba(100, 181, 246, 0.4);
+}
+
+.api-toggle-btn:hover {
+  background: rgba(100, 181, 246, 0.25) !important;
+}
+
+/* ============================================
+   PERFIL
+   ============================================ */
+.perfil-container {
+  flex: 0 0 auto;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 16px;
+  min-width: 200px;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.user-greeting {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  font-weight: 400;
+}
+
+.user-name {
+  color: white;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.perfil-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(10px);
+}
+
+.perfil-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: scale(1.1);
+}
+
+.perfil-icon {
+  display: block;
+  line-height: 1;
+}
+
+/* ============================================
+   CONTENIDO PRINCIPAL
+   ============================================ */
+.home-main {
+  padding: 40px 20px 60px;
+}
+
+.home-container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* ============================================
+   HERO SECTION
+   ============================================ */
+.hero-section {
+  text-align: center;
+  margin-bottom: 60px;
+  padding: 40px 20px;
+  animation: fadeInUp 0.8s ease-out;
+}
+
+.hero-title {
+  font-size: 48px;
+  font-weight: 800;
+  margin: 0 0 16px 0;
+  letter-spacing: -1px;
+  line-height: 1.2;
+}
+
+.brand-highlight {
+  background: linear-gradient(135deg, #ffd94b 0%, #ffb347 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-subtitle {
+  font-size: 20px;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0;
+  font-weight: 400;
+}
+
+/* ============================================
+   SECCIÓN DE PELÍCULAS
+   ============================================ */
+.peliculas-section {
+  animation: fadeInUp 0.8s ease-out 0.2s both;
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.section-title {
+  font-size: 36px;
+  font-weight: 700;
+  margin: 0 0 12px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.title-icon {
+  font-size: 32px;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+.section-description {
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0;
+}
+
+/* ============================================
+   GRID DE PELÍCULAS
+   ============================================ */
+.pelis-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 32px;
+  padding: 20px 0;
+}
+
+/* ============================================
+   TARJETAS DE PELÍCULAS
+   ============================================ */
+.peli-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  animation: fadeInUp 0.6s ease-out both;
+}
+
+.peli-card:nth-child(1) { animation-delay: 0.1s; }
+.peli-card:nth-child(2) { animation-delay: 0.2s; }
+.peli-card:nth-child(3) { animation-delay: 0.3s; }
+.peli-card:nth-child(4) { animation-delay: 0.4s; }
+.peli-card:nth-child(5) { animation-delay: 0.5s; }
+.peli-card:nth-child(6) { animation-delay: 0.6s; }
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.peli-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+  border-color: rgba(255, 217, 75, 0.3);
+}
+
+/* Imagen de la tarjeta */
+.card-image-container {
+  position: relative;
+  width: 100%;
+  padding-top: 150%;
+  overflow: hidden;
+  background: linear-gradient(135deg, #1a2f4d 0%, #0f2342 100%);
+}
+
+.card-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.card-image-placeholder {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #1a2f4d 0%, #0f2342 100%);
+}
+
+.placeholder-icon {
+  font-size: 64px;
+  opacity: 0.5;
+}
+
+.peli-card:hover .card-image {
+  transform: scale(1.1);
+}
+
+/* Overlay con botones */
+.card-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  backdrop-filter: blur(2px);
+}
+
+.peli-card:hover .card-overlay {
+  opacity: 1;
+}
+
+.play-btn,
+.favorite-btn {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.9);
+  color: #0a1a33;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.play-btn:hover {
+  background: #ffd94b;
+  transform: scale(1.1);
+}
+
+.favorite-btn {
+  background: rgba(255, 77, 77, 0.9);
+  color: white;
+}
+
+.favorite-btn:hover {
+  background: #ff5252;
+  transform: scale(1.1);
+}
+
+.play-icon,
+.favorite-icon {
+  display: block;
+  line-height: 1;
+}
+
+/* Contenido de la tarjeta */
+.card-content {
+  padding: 24px;
+}
+
+.card-title {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 0 12px 0;
+  color: white;
+  line-height: 1.3;
+}
+
+.card-description {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0 0 20px 0;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.card-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.card-btn {
+  flex: 1;
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: none;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.card-btn.primary {
+  background: linear-gradient(135deg, #ffd94b 0%, #ffb347 100%);
+  color: #0a1a33;
+}
+
+.card-btn.primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 217, 75, 0.4);
+}
+
+.card-btn.secondary {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.card-btn.secondary:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* ============================================
+   SECCIÓN DE IMÁGENES GRANDES
+   ============================================ */
+.imagenes-section {
+  margin-top: 80px;
+  animation: fadeInUp 0.8s ease-out 0.4s both;
+}
+
+.imagenes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 24px;
+  padding: 20px 0;
+}
+
+.imagen-card {
+  position: relative;
+  width: 100%;
+  border-radius: 20px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+  aspect-ratio: 16 / 9;
+}
+
+.imagen-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+  border-color: rgba(255, 217, 75, 0.3);
+}
+
+.imagen-large {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.5s ease;
+}
+
+.imagen-card:hover .imagen-large {
+  transform: scale(1.1);
+}
+
+.imagen-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  backdrop-filter: blur(2px);
+}
+
+.imagen-card:hover .imagen-overlay {
+  opacity: 1;
+}
+
+.imagen-play-btn {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.95);
+  color: #0a1a33;
+  font-size: 28px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  padding-left: 4px;
+}
+
+.imagen-play-btn:hover {
+  background: #ffd94b;
+  transform: scale(1.15);
+  box-shadow: 0 6px 30px rgba(255, 217, 75, 0.5);
+}
+
+.play-icon-large {
+  display: block;
+  line-height: 1;
+}
+
+/* Botón de reloj "Ver Más Tarde" */
+.ver-mas-tarde-clock-btn {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(10px);
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  z-index: 10;
+  padding: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.ver-mas-tarde-clock-btn:hover {
+  background: rgba(0, 0, 0, 0.8);
+  border-color: rgba(100, 181, 246, 0.6);
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(100, 181, 246, 0.4);
+}
+
+.ver-mas-tarde-clock-btn.active {
+  background: rgba(100, 181, 246, 0.9);
+  border-color: rgba(100, 181, 246, 1);
+  box-shadow: 0 4px 12px rgba(100, 181, 246, 0.5);
+}
+
+.ver-mas-tarde-clock-btn.active:hover {
+  background: rgba(100, 181, 246, 1);
+  transform: scale(1.15);
+}
+
+.clock-icon {
+  display: block;
+  line-height: 1;
+  font-size: 22px;
+}
+
+/* Botón de estrella favorito */
+.favorito-star-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(10px);
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  z-index: 10;
+  padding: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.favorito-star-btn:hover {
+  background: rgba(0, 0, 0, 0.8);
+  border-color: rgba(255, 217, 75, 0.6);
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(255, 217, 75, 0.4);
+}
+
+.favorito-star-btn.active {
+  background: rgba(255, 217, 75, 0.9);
+  border-color: rgba(255, 217, 75, 1);
+  box-shadow: 0 4px 12px rgba(255, 217, 75, 0.5);
+}
+
+.favorito-star-btn.active:hover {
+  background: rgba(255, 217, 75, 1);
+  transform: scale(1.15);
+}
+
+.star-icon {
+  display: block;
+  line-height: 1;
+  font-size: 22px;
+}
+
+/* Nombre de la película debajo de la imagen */
+.imagen-nombre {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.7) 70%, transparent 100%);
+  padding: 20px 16px 16px;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.imagen-card:hover .imagen-nombre {
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.8) 70%, transparent 100%);
+}
+
+.pelicula-nombre {
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+  margin: 0;
+  line-height: 1.3;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 1024px) {
+  .pelis-grid {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 24px;
+  }
+
+  .imagenes-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .header {
+    padding: 16px 20px;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .menu {
+    order: 3;
+    width: 100%;
+    justify-content: center;
+    padding: 0;
+    flex-wrap: wrap;
+  }
+
+  .menu-btn {
+    padding: 8px 16px;
+    font-size: 13px;
+  }
+
+  .btn-text {
+    display: none;
+  }
+
+  .perfil-container {
+    min-width: auto;
+  }
+
+  .user-info {
+    display: none;
+  }
+
+  .hero-title {
+    font-size: 36px;
+  }
+
+  .hero-subtitle {
+    font-size: 18px;
+  }
+
+  .section-title {
+    font-size: 28px;
+  }
+
+  .pelis-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+  }
+
+  .card-content {
+    padding: 20px;
+  }
+
+  .imagenes-section {
+    margin-top: 60px;
+  }
+
+  .imagenes-grid {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .home-main {
+    padding: 20px 10px 40px;
+  }
+
+  .hero-section {
+    padding: 30px 10px;
+    margin-bottom: 40px;
+  }
+
+  .hero-title {
+    font-size: 28px;
+  }
+
+  .section-title {
+    font-size: 24px;
+  }
+
+  .pelis-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .imagenes-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .imagen-play-btn {
+    width: 64px;
+    height: 64px;
+    font-size: 24px;
+  }
+
+  .pelicula-nombre {
+    font-size: 14px;
+  }
+
+  .imagen-nombre {
+    padding: 16px 12px 12px;
+  }
+
+  .busqueda-container {
+    min-width: 200px;
+    max-width: 100%;
+  }
+}
+
+/* Mensaje cuando no hay resultados de búsqueda */
+.sin-resultados-busqueda {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  padding: 40px 20px;
+}
+
+.sin-resultados-content {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.sin-resultados-icon {
+  font-size: 64px;
+  display: block;
+  margin-bottom: 20px;
+  opacity: 0.5;
+}
+
+.sin-resultados-content h2 {
+  font-size: 28px;
+  font-weight: 600;
+  margin: 0 0 12px 0;
+  color: white;
+}
+
+.sin-resultados-content p {
+  font-size: 16px;
+  margin: 8px 0;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.sin-resultados-sugerencia {
+  font-size: 14px !important;
+  opacity: 0.6;
+  margin-top: 16px !important;
+}
+
+/* ============================================
+   BOTÓN TOGGLE API
+   ============================================ */
+.toggle-api-btn {
+  margin-top: 30px;
+  padding: 14px 28px;
+  background: linear-gradient(135deg, rgba(100, 181, 246, 0.3) 0%, rgba(100, 181, 246, 0.2) 100%);
+  border: 2px solid rgba(100, 181, 246, 0.5);
+  border-radius: 30px;
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  display: inline-block;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.toggle-api-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.toggle-api-btn.active {
+  background: rgba(100, 181, 246, 0.3);
+  border-color: rgba(100, 181, 246, 0.6);
+  box-shadow: 0 0 20px rgba(100, 181, 246, 0.4);
+}
+
+/* ============================================
+   INDICADOR DE CARGA API
+   ============================================ */
+.cargando-api {
+  text-align: center;
+  padding: 60px 20px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 18px;
+}
+
+.cargando-api p {
+  margin: 0;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.api-error {
+  margin: 0 auto 20px;
+  max-width: 600px;
+  padding: 12px 18px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 107, 107, 0.5);
+  background: rgba(255, 107, 107, 0.15);
+  text-align: center;
+  color: #ffd3d3;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* ============================================
+   CALIFICACIÓN DE PELÍCULAS API
+   ============================================ */
+.pelicula-calificacion {
+  font-size: 14px;
+  color: rgba(255, 217, 75, 0.9);
+  margin: 8px 0 0 0;
+  font-weight: 500;
+}
+

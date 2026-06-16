@@ -1,0 +1,88 @@
+<div class="login-wrapper">
+  <div class="login-background">
+    <div class="gradient-orb orb-1"></div>
+    <div class="gradient-orb orb-2"></div>
+    <div class="gradient-orb orb-3"></div>
+  </div>
+  
+  <div class="login-card">
+    <div class="login-header">
+      <h1 class="login-title">Bienvenido a <span class="brand-name">StreamZone</span></h1>
+      <p class="login-subtitle">Inicia sesión para continuar</p>
+    </div>
+
+    <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
+      <div class="login-group">
+        <label class="login-label" for="email">
+          <span class="label-icon">✉</span>
+          Correo electrónico
+        </label>
+        <div class="input-wrapper">
+          <input 
+            class="login-input" 
+            type="email" 
+            id="email" 
+            name="email"
+            [(ngModel)]="email"
+            placeholder="tu@gmail.com"
+            required
+            autocomplete="email"
+            [disabled]="loading">
+        </div>
+      </div>
+
+      <div class="login-group">
+        <label class="login-label" for="password">
+          <span class="label-icon">🔒</span>
+          Contraseña
+        </label>
+        <div class="input-wrapper">
+          <input 
+            class="login-input" 
+            type="password" 
+            id="password" 
+            name="password"
+            [(ngModel)]="password"
+            placeholder="••••••••"
+            required
+            autocomplete="current-password"
+            [disabled]="loading">
+        </div>
+      </div>
+
+      <div class="login-error" *ngIf="errorMessage">
+        <span class="error-icon">⚠</span>
+        {{ errorMessage }}
+      </div>
+
+      <div class="login-actions">
+        <label class="login-checkbox">
+          <input type="checkbox" />
+          <span>Recuérdame</span>
+        </label>
+        <a href="#" class="login-link">¿Olvidaste la contraseña?</a>
+      </div>
+
+      <button 
+        type="submit" 
+        class="login-button"
+        [disabled]="loading"
+        [class.loading]="loading">
+        <span *ngIf="!loading">Entrar</span>
+        <span *ngIf="loading" class="button-loading">
+          <span class="spinner"></span>
+          Iniciando sesión...
+        </span>
+      </button>
+    </form>
+
+    <div class="login-divider">
+      <span>o</span>
+    </div>
+
+    <div class="login-footer">
+      <p>¿No tienes cuenta? <a routerLink="/register" class="footer-link">Regístrate ahora</a></p>
+    </div>
+  </div>
+</div>
+  
