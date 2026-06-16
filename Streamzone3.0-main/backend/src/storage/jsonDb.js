@@ -8,7 +8,7 @@ const DEFAULT_DATA = {
     {
       id: 1,
       username: 'admin',
-      email: 'admin@streamzone.com',
+      email: 'admin@gmail.com',
       password: 'admin123',
       created_at: '2026-01-01T00:00:00.000Z',
     },

@@ -481,7 +481,7 @@ Véase [PRUEBAS.md](../PRUEBAS.md).
 
 ### Anexo D — Usuario y datos de prueba
 
-- Email: `admin@streamzone.com`  
+- Email: `admin@gmail.com`  
 - Contraseña: `admin123`  
 - Origen: `database/seed.sql`
 

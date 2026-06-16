@@ -68,7 +68,7 @@ El servidor queda en **http://localhost:4000**.
 
 ## Fase 4 — Probar películas, favoritos y ver más tarde
 
-Usuario de prueba del seed: **id = 1** (`admin@streamzone.com` / `admin123`).
+Usuario de prueba del seed: **id = 1** (`admin@gmail.com` / `admin123`).
 
 ### GET /api/movies
 
@@ -171,7 +171,7 @@ Invoke-RestMethod -Method POST -Uri "http://localhost:4000/api/users/register" `
 ```powershell
 Invoke-RestMethod -Method POST -Uri "http://localhost:4000/api/users/login" `
   -ContentType "application/json" `
-  -Body '{"email":"admin@streamzone.com","password":"admin123"}'
+  -Body '{"email":"admin@gmail.com","password":"admin123"}'
 ```
 
 ### Seguridad

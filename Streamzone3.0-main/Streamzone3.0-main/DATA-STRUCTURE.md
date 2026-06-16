@@ -17,7 +17,7 @@ Los datos se almacenan en la carpeta `src/data/`:
 [
   {
     "id": 1,
-    "email": "admin@streamzone.com",
+    "email": "admin@gmail.com",
     "contraseña": "admin123",
     "nombre": "Administrador"
   }
@@ -72,7 +72,7 @@ El archivo `src/data-service.ts` contiene todas las funciones para leer y escrib
 Por defecto, la aplicación incluye estos usuarios:
 
 1. **Admin:**
-   - Email: `admin@streamzone.com`
+   - Email: `admin@gmail.com`
    - Contraseña: `admin123`
 
 2. **Usuario Demo:**

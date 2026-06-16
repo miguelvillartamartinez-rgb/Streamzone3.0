@@ -78,7 +78,7 @@ psql -U postgres -d streamzone -f database/seed.sql
 
 | Tipo          | Detalle |
 |---------------|---------|
-| Usuario       | `admin` — `admin@streamzone.com` / `admin123` |
+| Usuario       | `admin` — `admin@gmail.com` / `admin123` |
 | Películas     | 5 títulos (Star Wars IV, Inception, The Dark Knight, Interstellar, Transformers) |
 | Favoritos     | 3 películas del usuario admin |
 | Ver más tarde | 2 películas del usuario admin |
