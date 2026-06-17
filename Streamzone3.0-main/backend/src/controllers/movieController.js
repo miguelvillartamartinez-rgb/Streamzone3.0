@@ -105,9 +105,60 @@ async function createManualMovie(req, res) {
   }
 }
 
+async function deleteMovie(req, res) {
+  const movieId = Number(req.params.id);
+
+  if (!Number.isInteger(movieId) || movieId <= 0) {
+    return res.status(400).json({
+      success: false,
+      message: 'id debe ser un número entero válido',
+    });
+  }
+
+  try {
+    const movie = await movieModel.findById(movieId);
+
+    if (!movie) {
+      return res.status(404).json({
+        success: false,
+        message: 'Película no encontrada',
+      });
+    }
+
+    if (movie.source !== 'manual') {
+      return res.status(403).json({
+        success: false,
+        message: 'Solo se pueden eliminar películas manuales',
+      });
+    }
+
+    const deleted = await movieModel.deleteById(movieId);
+
+    if (!deleted) {
+      return res.status(404).json({
+        success: false,
+        message: 'Película no encontrada',
+      });
+    }
+
+    return res.json({
+      success: true,
+      message: 'Película eliminada correctamente',
+      id: movieId,
+    });
+  } catch (error) {
+    console.error('Error en deleteMovie:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Error interno del servidor',
+    });
+  }
+}
+
 module.exports = {
   getAllMovies,
   getMovieById,
   createOrGetMovie,
   createManualMovie,
+  deleteMovie,
 };

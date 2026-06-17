@@ -113,3 +113,9 @@ export interface CreateManualMovieResponse {
   created?: boolean;
   movie?: ApiMovie;
 }
+
+export interface DeleteMovieResponse {
+  success: boolean;
+  message?: string;
+  id?: number;
+}

@@ -228,6 +228,14 @@
 
         <div *ngIf="!cargandoManuales && peliculasManualesFiltradas.length > 0" class="imagenes-grid">
           <div class="imagen-card" *ngFor="let pelicula of peliculasManualesFiltradas">
+            <button
+              *ngIf="esAdmin"
+              class="manual-delete-btn"
+              type="button"
+              (click)="eliminarPeliculaManual(pelicula)"
+              title="Eliminar película manual">
+              <span class="delete-icon">🗑️</span>
+            </button>
             <img
               [src]="getPosterManual(pelicula)"
               [alt]="pelicula.title"

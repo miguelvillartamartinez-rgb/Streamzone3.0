@@ -130,19 +130,6 @@
     "created_at": "2026-06-16T21:34:59.787Z"
   },
   {
-    "id": 11,
-    "tmdb_id": null,
-    "title": "conejo",
-    "overview": "peli conejo",
-    "poster_path": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Big_buck_bunny_poster_big.jpg/220px-Big_buck_bunny_poster_big.jpg",
-    "release_date": "2002-01-01",
-    "genre": "animacion",
-    "duration_minutes": 10,
-    "video_url": "https://www.w3schools.com/html/mov_bbb.mp4",
-    "source": "manual",
-    "created_at": "2026-06-16T21:41:22.173Z"
-  },
-  {
     "id": 12,
     "tmdb_id": null,
     "title": "cdhgdhdh",

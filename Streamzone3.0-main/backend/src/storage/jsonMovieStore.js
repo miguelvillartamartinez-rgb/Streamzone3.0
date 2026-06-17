@@ -53,6 +53,19 @@ async function findOrCreate(movieData) {
   return { movie, created: true };
 }
 
+async function deleteById(id) {
+  const movies = readCollection('movies');
+  const index = movies.findIndex((item) => item.id === id);
+
+  if (index === -1) {
+    return null;
+  }
+
+  const [removed] = movies.splice(index, 1);
+  writeCollection('movies', movies);
+  return removed;
+}
+
 module.exports = {
   findAll,
   findById,
@@ -60,4 +73,5 @@ module.exports = {
   create,
   createManual,
   findOrCreate,
+  deleteById,
 };

@@ -114,6 +114,18 @@ async function findOrCreate(movieData) {
   return { movie, created: true };
 }
 
+async function deleteById(id) {
+  if ((await getStorageMode()) === 'json') {
+    return jsonMovieStore.deleteById(id);
+  }
+
+  const result = await pool.query(
+    `DELETE FROM movies WHERE id = $1 RETURNING id`,
+    [id]
+  );
+  return result.rows[0] || null;
+}
+
 module.exports = {
   findAll,
   findById,
@@ -121,4 +133,5 @@ module.exports = {
   create,
   createManual,
   findOrCreate,
+  deleteById,
 };

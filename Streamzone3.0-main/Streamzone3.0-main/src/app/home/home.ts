@@ -480,6 +480,42 @@ export class Home implements OnInit {
     return buildPosterUrl(pelicula.poster_path);
   }
 
+  get esAdmin(): boolean {
+    return this.user?.email?.toLowerCase() === 'admin@gmail.com';
+  }
+
+  eliminarPeliculaManual(pelicula: ApiMovie) {
+    if (!this.esAdmin) {
+      return;
+    }
+
+    const confirmacion = confirm(
+      `¿Eliminar "${pelicula.title}"? Esta acción no se puede deshacer.`
+    );
+
+    if (!confirmacion) {
+      return;
+    }
+
+    this.moviesApi.deleteManualMovie(pelicula.id).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.peliculasManuales = this.peliculasManuales.filter((movie) => movie.id !== pelicula.id);
+          this.filtrarPeliculasManuales();
+          this.cdr.detectChanges();
+          return;
+        }
+
+        console.error('[StreamZone] No se pudo eliminar la película manual:', response.message);
+        alert(response.message || 'No se pudo eliminar la película');
+      },
+      error: (error) => {
+        console.error('[StreamZone] Error al eliminar película manual:', error);
+        alert(error?.error?.message || 'Error al eliminar la película');
+      },
+    });
+  }
+
   reproducirPeliculaManual(pelicula: ApiMovie) {
     this.router.navigate(['/reproducir'], {
       queryParams: { origen: 'db', id: pelicula.id },

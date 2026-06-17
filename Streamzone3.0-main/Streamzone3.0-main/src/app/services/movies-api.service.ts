@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import {
   CreateManualMoviePayload,
   CreateManualMovieResponse,
+  DeleteMovieResponse,
   MovieDetailResponse,
   MoviesListResponse,
 } from '../models/backend-api.models';
@@ -26,5 +27,9 @@ export class MoviesApiService {
 
   createManual(payload: CreateManualMoviePayload): Observable<CreateManualMovieResponse> {
     return this.http.post<CreateManualMovieResponse>(`${this.apiUrl}/manual`, payload);
+  }
+
+  deleteManualMovie(id: number): Observable<DeleteMovieResponse> {
+    return this.http.delete<DeleteMovieResponse>(`${this.apiUrl}/${id}`);
   }
 }
