@@ -1,6 +1,10 @@
 const fs = require('fs');
 const path = require('path');
 
+/**
+ * Capa de bajo nivel del fallback JSON: lectura/escritura de archivos en backend/data/.
+ * Cada colección (users, movies, favorites, watch_later) es un .json independiente.
+ */
 const DATA_DIR = path.join(__dirname, '../../data');
 
 const DEFAULT_DATA = {

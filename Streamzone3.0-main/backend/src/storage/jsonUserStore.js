@@ -1,3 +1,4 @@
+/** Fallback JSON de userModel; findById omite password en la respuesta. */
 const { readCollection, writeCollection, nextId, nowIso } = require('./jsonDb');
 
 async function findById(id) {

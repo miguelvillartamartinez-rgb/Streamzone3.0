@@ -1,3 +1,7 @@
+/**
+ * Cliente HTTP de "Ver más tarde" (tabla watch_later).
+ * Misma forma de payload que favoritos: user_id + datos TMDB de la película.
+ */
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';

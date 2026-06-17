@@ -1,9 +1,14 @@
+/**
+ * Modelo de favoritos: relación N:M entre users y movies vía tabla favorites.
+ * Al listar se hace JOIN con movies para devolver metadatos completos de cada película.
+ */
 const { pool } = require('../db');
 const { getStorageMode } = require('../storage/storageMode');
 const { createListStore } = require('../storage/jsonListStore');
 
 const jsonFavoriteStore = createListStore('favorites');
 
+/** Favoritos de un usuario con datos de película (JOIN movies). */
 async function findByUserId(userId) {
   if ((await getStorageMode()) === 'json') {
     return jsonFavoriteStore.findByUserId(userId);
@@ -20,6 +25,10 @@ async function findByUserId(userId) {
        m.overview,
        m.poster_path,
        m.release_date,
+       m.genre,
+       m.duration_minutes,
+       m.video_url,
+       m.source,
        m.created_at AS movie_created_at
      FROM favorites f
      INNER JOIN movies m ON m.id = f.movie_id
@@ -30,6 +39,7 @@ async function findByUserId(userId) {
   return result.rows;
 }
 
+/** Comprueba duplicado antes de INSERT (constraint uq_favorites_user_movie). */
 async function findByUserAndMovie(userId, movieId) {
   if ((await getStorageMode()) === 'json') {
     return jsonFavoriteStore.findByUserAndMovie(userId, movieId);
@@ -58,6 +68,7 @@ async function findById(id) {
   return result.rows[0] || null;
 }
 
+/** Añade par (user_id, movie_id) a la tabla puente favorites. */
 async function create(userId, movieId) {
   if ((await getStorageMode()) === 'json') {
     return jsonFavoriteStore.create(userId, movieId);

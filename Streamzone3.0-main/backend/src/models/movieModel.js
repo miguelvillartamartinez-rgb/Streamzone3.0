@@ -1,3 +1,10 @@
+/**
+ * Capa de acceso a datos de películas (tabla movies).
+ *
+ * Dos tipos principales:
+ *   - TMDB (source='tmdb'): tienen tmdb_id; se crean al añadir favoritos/ver más tarde desde la API externa.
+ *   - Manual (source='manual'): tmdb_id NULL; alta del admin con genre, video_url, etc.
+ */
 const { pool } = require('../db');
 const { getStorageMode } = require('../storage/storageMode');
 const jsonMovieStore = require('../storage/jsonMovieStore');
@@ -7,6 +14,7 @@ const MOVIE_COLUMNS = `
   genre, duration_minutes, video_url, source, created_at
 `;
 
+/** Catálogo completo ordenado por título (GET /api/movies). */
 async function findAll() {
   if ((await getStorageMode()) === 'json') {
     return jsonMovieStore.findAll();
@@ -20,6 +28,7 @@ async function findAll() {
   return result.rows;
 }
 
+/** Detalle por id interno de StreamZone (reproducción origen=db). */
 async function findById(id) {
   if ((await getStorageMode()) === 'json') {
     return jsonMovieStore.findById(id);
@@ -34,6 +43,7 @@ async function findById(id) {
   return result.rows[0] || null;
 }
 
+/** Evita duplicar la misma película TMDB al persistir favoritos/ver más tarde. */
 async function findByTmdbId(tmdbId) {
   if ((await getStorageMode()) === 'json') {
     return jsonMovieStore.findByTmdbId(tmdbId);
@@ -48,6 +58,7 @@ async function findByTmdbId(tmdbId) {
   return result.rows[0] || null;
 }
 
+/** INSERT de película TMDB (POST /api/movies con tmdb_id). */
 async function create(movieData) {
   if ((await getStorageMode()) === 'json') {
     return jsonMovieStore.create(movieData);
@@ -63,6 +74,10 @@ async function create(movieData) {
   return result.rows[0];
 }
 
+/**
+ * INSERT de película manual: tmdb_id NULL y source='manual'.
+ * Incluye campos de reproducción (video_url, genre, duration_minutes).
+ */
 async function createManual(movieData) {
   if ((await getStorageMode()) === 'json') {
     return jsonMovieStore.createManual(movieData);
@@ -100,6 +115,7 @@ async function createManual(movieData) {
   return result.rows[0];
 }
 
+/** Patrón idempotente: devuelve existente o inserta nueva película TMDB. */
 async function findOrCreate(movieData) {
   if ((await getStorageMode()) === 'json') {
     return jsonMovieStore.findOrCreate(movieData);
@@ -114,6 +130,7 @@ async function findOrCreate(movieData) {
   return { movie, created: true };
 }
 
+/** DELETE físico; CASCADE en favorites/watch_later limpia referencias automáticamente. */
 async function deleteById(id) {
   if ((await getStorageMode()) === 'json') {
     return jsonMovieStore.deleteById(id);

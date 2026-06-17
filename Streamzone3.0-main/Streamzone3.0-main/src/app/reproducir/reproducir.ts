@@ -18,6 +18,12 @@ import {
   resolveVideoPlayback,
 } from '../utils/video-playback.helper';
 
+/**
+ * Pantalla de reproducción unificada. El origen se elige por query params:
+ *   origen=db    → película manual/TMDB persistida (GET /api/movies/:id, video_url o demo)
+ *   origen=tmdb  → metadatos TMDB + tráiler YouTube o vídeo demo
+ *   origen=local → assets Star Wars / Transformers con MP4 demo local
+ */
 @Component({
   selector: 'app-reproducir',
   standalone: true,
@@ -85,6 +91,7 @@ export class Reproducir implements OnInit {
     this.router.navigate(['/home']);
   }
 
+  /** Película en PostgreSQL: usa video_url con resolveVideoPlayback; fallback DEMO_VIDEO_URL. */
   private cargarPeliculaDb(idParam: string | null) {
     const id = Number(idParam);
 
@@ -124,6 +131,7 @@ export class Reproducir implements OnInit {
     });
   }
 
+  /** TMDB: iframe YouTube si hay tráiler; si no, MP4 demo (DEMO_VIDEO_URL). */
   private cargarPeliculaTmdb(tmdbIdParam: string | null) {
     const tmdbId = Number(tmdbIdParam);
 
@@ -190,6 +198,7 @@ export class Reproducir implements OnInit {
     });
   }
 
+  /** Catálogo embebido en assets/ (Star Wars, Transformers) con URL de vídeo demo. */
   private cargarPeliculaLocal(
     sagaParam: string | null,
     numParam: string | null,
@@ -255,6 +264,7 @@ export class Reproducir implements OnInit {
       return;
     }
 
+    // Mensajes informativos cuando video_url es inválido, imagen o URL bloqueada
     const trimmedOriginal = originalVideoUrl?.trim();
     if (!trimmedOriginal) {
       this.infoMessage = 'Esta película no tiene video_url. Se muestra un vídeo demo.';

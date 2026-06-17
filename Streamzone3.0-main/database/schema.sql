@@ -1,7 +1,16 @@
--- StreamZone - Esquema de base de datos (Fase 2)
+-- StreamZone - Esquema relacional PostgreSQL (Fase 2)
 -- Ejecutar sobre una base de datos vacía llamada "streamzone"
+--
+-- Modelo de datos:
+--   users        → cuentas de la plataforma
+--   movies       → catálogo persistido (TMDB, alta manual o assets locales)
+--   favorites    → relación N:M usuario ↔ película (marcadas como favoritas)
+--   watch_later  → relación N:M usuario ↔ película (lista "Ver más tarde")
 
--- Tabla de usuarios
+-- ---------------------------------------------------------------------------
+-- USERS: autenticación y perfil básico
+-- PK: id (SERIAL). username y email únicos para evitar duplicados en registro.
+-- ---------------------------------------------------------------------------
 CREATE TABLE users (
   id SERIAL PRIMARY KEY,
   username VARCHAR(50) NOT NULL UNIQUE,
@@ -10,7 +19,17 @@ CREATE TABLE users (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Tabla de películas (catálogo persistido desde TMDB, alta manual u otras fuentes)
+-- ---------------------------------------------------------------------------
+-- MOVIES: catálogo central del TFG
+-- PK: id (SERIAL interno de StreamZone).
+-- tmdb_id: identificador externo de The Movie Database; NULL en altas manuales.
+-- source: origen del registro → 'tmdb' | 'manual' | 'local'
+--   - tmdb   : película sincronizada desde la API externa (favoritos/ver más tarde)
+--   - manual : alta hecha por el administrador (video_url, genre, etc.)
+--   - local  : reservado para catálogo embebido en assets del frontend
+-- genre, duration_minutes, video_url: campos añadidos para reproducción manual.
+-- poster_path: ruta TMDB relativa o URL absoluta (http/https) en manuales.
+-- ---------------------------------------------------------------------------
 CREATE TABLE movies (
   id SERIAL PRIMARY KEY,
   tmdb_id INTEGER,
@@ -26,9 +45,16 @@ CREATE TABLE movies (
   CONSTRAINT chk_movies_source CHECK (source IN ('tmdb', 'manual', 'local'))
 );
 
+-- Índice único parcial: solo exige unicidad de tmdb_id cuando existe.
+-- Permite múltiples filas con tmdb_id NULL (películas manuales).
 CREATE UNIQUE INDEX uq_movies_tmdb_id ON movies (tmdb_id) WHERE tmdb_id IS NOT NULL;
 
--- Favoritos de cada usuario
+-- ---------------------------------------------------------------------------
+-- FAVORITES: tabla puente usuario ↔ película
+-- FK user_id → users(id) ON DELETE CASCADE: al borrar usuario, se borran sus favoritos.
+-- FK movie_id → movies(id) ON DELETE CASCADE: al borrar película, desaparece de favoritos.
+-- UNIQUE (user_id, movie_id): un usuario no puede duplicar la misma película.
+-- ---------------------------------------------------------------------------
 CREATE TABLE favorites (
   id SERIAL PRIMARY KEY,
   user_id INTEGER NOT NULL,
@@ -41,7 +67,10 @@ CREATE TABLE favorites (
   CONSTRAINT uq_favorites_user_movie UNIQUE (user_id, movie_id)
 );
 
--- Lista "Ver más tarde" de cada usuario
+-- ---------------------------------------------------------------------------
+-- WATCH_LATER: misma estructura que favorites, lista "Ver más tarde"
+-- ON DELETE CASCADE mantiene integridad referencial igual que en favorites.
+-- ---------------------------------------------------------------------------
 CREATE TABLE watch_later (
   id SERIAL PRIMARY KEY,
   user_id INTEGER NOT NULL,

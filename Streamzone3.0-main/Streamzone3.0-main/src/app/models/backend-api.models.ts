@@ -78,8 +78,11 @@ export interface AddWatchLaterResponse {
 
 export interface AddMovieListPayload {
   user_id: number;
-  tmdb_id: number;
-  title: string;
+  /** Película ya existente en movies (p. ej. source='manual') */
+  movie_id?: number;
+  /** Payload TMDB: findOrCreate por tmdb_id */
+  tmdb_id?: number;
+  title?: string;
   overview?: string | null;
   poster_path?: string | null;
   release_date?: string | null;

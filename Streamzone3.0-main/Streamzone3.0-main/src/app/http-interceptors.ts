@@ -4,15 +4,18 @@ import { isPlatformBrowser } from '@angular/common';
 import { tap, catchError } from 'rxjs/operators';
 import { throwError } from 'rxjs';
 
-/* ======================
-   AUTH INTERCEPTOR
-====================== */
+/**
+ * Interceptores HTTP globales de StreamZone.
+ * authInterceptor: adjunta x-user-id en peticiones al backend propio.
+ * El backend lo usa para identificar al usuario (favoritos, adminAuth, etc.).
+ * Sin JWT aún, es el vínculo sesión frontend ↔ API REST.
+ */
 export const authInterceptor: HttpInterceptorFn = (
   req: HttpRequest<any>,
   next: HttpHandlerFn
 ) => {
 
-  // ✅ NO tocar llamadas a TMDB
+  // Las llamadas a TMDB son externas y no llevan sesión de StreamZone
   if (req.url.includes('api.themoviedb.org')) {
     return next(req);
   }
@@ -35,7 +38,7 @@ export const authInterceptor: HttpInterceptorFn = (
           });
         }
       } catch {
-        // ignore parse errors
+        // Sesión corrupta: se envía la petición sin cabecera
       }
     }
   }
@@ -44,9 +47,7 @@ export const authInterceptor: HttpInterceptorFn = (
 };
 
 
-/* ======================
-   LOGGING INTERCEPTOR
-====================== */
+/** Registra duración de cada petición HTTP (útil en desarrollo). */
 export const loggingInterceptor: HttpInterceptorFn = (
   req: HttpRequest<any>,
   next: HttpHandlerFn
@@ -62,9 +63,7 @@ export const loggingInterceptor: HttpInterceptorFn = (
 };
 
 
-/* ======================
-   ERROR INTERCEPTOR
-====================== */
+/** Propaga errores HTTP al subscriber y los registra en consola. */
 export const errorInterceptor: HttpInterceptorFn = (
   req: HttpRequest<any>,
   next: HttpHandlerFn
@@ -76,11 +75,3 @@ export const errorInterceptor: HttpInterceptorFn = (
     })
   );
 };
-
-
-
-
-
-
-
-

@@ -10,7 +10,12 @@
     <h2 class="section-title">⭐ Películas de Star Wars Favoritas</h2>
     <div class="starwars-grid">
       <div class="starwars-card" *ngFor="let pelicula of peliculasStarWars">
-        <img [src]="pelicula.imagen" [alt]="pelicula.nombre" class="starwars-image" (error)="onImageError($event)">
+        <img
+          [src]="pelicula.imagen"
+          [alt]="pelicula.nombre"
+          class="starwars-image"
+          [attr.referrerpolicy]="pelicula.origen === 'manual' ? 'no-referrer' : null"
+          (error)="onImageError($event)">
         <div class="starwars-info">
           <h3 class="starwars-nombre">{{ pelicula.nombre | capitalize }}</h3>
           <button class="reproducir-btn" (click)="reproducirPelicula(pelicula)" title="Reproducir">
@@ -29,7 +34,12 @@
     <h2 class="section-title">🤖 Películas de Transformers Favoritas</h2>
     <div class="starwars-grid">
       <div class="starwars-card" *ngFor="let pelicula of peliculasTransformers">
-        <img [src]="pelicula.imagen" [alt]="pelicula.nombre" class="starwars-image" (error)="onImageError($event)">
+        <img
+          [src]="pelicula.imagen"
+          [alt]="pelicula.nombre"
+          class="starwars-image"
+          [attr.referrerpolicy]="pelicula.origen === 'manual' ? 'no-referrer' : null"
+          (error)="onImageError($event)">
         <div class="starwars-info">
           <h3 class="starwars-nombre">{{ pelicula.nombre | capitalize }}</h3>
           <button class="reproducir-btn" (click)="reproducirPelicula(pelicula)" title="Reproducir">
@@ -49,7 +59,12 @@
     <h2 class="section-title">🎬 Películas de API marcadas como favoritas</h2>
     <div class="starwars-grid">
       <div class="starwars-card" *ngFor="let pelicula of peliculasApi">
-        <img [src]="pelicula.imagen" [alt]="pelicula.nombre" class="starwars-image" (error)="onImageError($event)">
+        <img
+          [src]="pelicula.imagen"
+          [alt]="pelicula.nombre"
+          class="starwars-image"
+          [attr.referrerpolicy]="pelicula.origen === 'manual' ? 'no-referrer' : null"
+          (error)="onImageError($event)">
         <div class="starwars-info">
           <h3 class="starwars-nombre">{{ pelicula.nombre | capitalize }}</h3>
           <button class="reproducir-btn" (click)="reproducirPelicula(pelicula)" title="Reproducir">

@@ -1,12 +1,17 @@
+/**
+ * Controller de "Ver más tarde".
+ * Misma lógica que favoritos pero persiste en tabla watch_later.
+ */
 const userModel = require('../models/userModel');
 const movieModel = require('../models/movieModel');
 const watchLaterModel = require('../models/watchLaterModel');
 const {
-  parseMovieInput,
+  parseFavoriteMovieReference,
   parseUserId,
   formatWatchLaterRow,
 } = require('../utils/movieValidation');
 
+/** GET /api/watch-later/:userId */
 async function getWatchLaterByUserId(req, res) {
   const userId = parseUserId(req.params.userId);
   if (!userId) {
@@ -41,6 +46,7 @@ async function getWatchLaterByUserId(req, res) {
   }
 }
 
+/** POST /api/watch-later — findOrCreate movie + INSERT watch_later. */
 async function addWatchLater(req, res) {
   const userId = parseUserId(req.body.user_id);
   if (!userId) {
@@ -50,11 +56,11 @@ async function addWatchLater(req, res) {
     });
   }
 
-  const validation = parseMovieInput(req.body);
-  if (!validation.valid) {
+  const reference = parseFavoriteMovieReference(req.body);
+  if (!reference.valid) {
     return res.status(400).json({
       success: false,
-      message: validation.message,
+      message: reference.message,
     });
   }
 
@@ -67,7 +73,18 @@ async function addWatchLater(req, res) {
       });
     }
 
-    const { movie } = await movieModel.findOrCreate(validation.data);
+    let movie;
+    if (reference.mode === 'by_id') {
+      movie = await movieModel.findById(reference.movieId);
+      if (!movie) {
+        return res.status(404).json({
+          success: false,
+          message: 'Película no encontrada',
+        });
+      }
+    } else {
+      ({ movie } = await movieModel.findOrCreate(reference.data));
+    }
 
     const existing = await watchLaterModel.findByUserAndMovie(userId, movie.id);
     if (existing) {
@@ -105,6 +122,7 @@ async function addWatchLater(req, res) {
   }
 }
 
+/** DELETE /api/watch-later/:id */
 async function deleteWatchLater(req, res) {
   const watchLaterId = parseUserId(req.params.id);
   if (!watchLaterId) {

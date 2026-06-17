@@ -7,11 +7,23 @@ import { TruncatePipe, CapitalizePipe } from '../pipes';
 import { PeliculasApiService, PeliculaTransformada } from '../services/peliculas-api.service';
 import { FavoritesApiService } from '../services/favorites-api.service';
 import { WatchLaterApiService } from '../services/watch-later-api.service';
-import { toAddMovieListPayload, buildPosterUrl } from '../services/api-movie.helper';
+import { toAddMovieListPayload, toAddMovieByIdPayload, buildPosterUrl } from '../services/api-movie.helper';
 import { SessionUser, ApiMovie } from '../models/backend-api.models';
 import { MoviesApiService } from '../services/movies-api.service';
 import { isAdminUser } from '../utils/admin-user';
 
+type CatalogoHomeItem =
+  | { tipo: 'starwars'; localNum: number }
+  | { tipo: 'transformers'; localNum: number }
+  | { tipo: 'admin'; pelicula: ApiMovie };
+
+/**
+ * Pantalla principal: agrega tres fuentes de catálogo en una sola vista.
+ *   - Locales: assets Star Wars / Transformers (sin BD)
+ *   - TMDB: API externa vía PeliculasApiService
+ *   - Manuales: GET /api/movies filtrado por source='manual'
+ * Gestión de catálogo (alta/borrado) restringida al admin vía isAdminUser().
+ */
 @Component({
   selector: 'app-home',
   standalone: true,
@@ -59,14 +71,20 @@ export class Home implements OnInit {
   favoritosStarWars: Set<number> = new Set();
   favoritosTransformers: Set<number> = new Set();
   favoritosAPI: Set<number> = new Set();
+  favoritosManuales: Set<number> = new Set();
   verMasTardeStarWars: Set<number> = new Set();
   verMasTardeTransformers: Set<number> = new Set();
   verMasTardeAPI: Set<number> = new Set();
+  verMasTardeManuales: Set<number> = new Set();
 
   /** Mapa tmdb_id -> id de fila en favorites (PostgreSQL) */
   private favoriteIdByTmdb = new Map<number, number>();
+  /** Mapa movie_id -> id de fila en favorites (películas manuales) */
+  private favoriteIdByMovieId = new Map<number, number>();
   /** Mapa tmdb_id -> id de fila en watch_later (PostgreSQL) */
   private watchLaterIdByTmdb = new Map<number, number>();
+  /** Mapa movie_id -> id de fila en watch_later (películas manuales) */
+  private watchLaterIdByMovieId = new Map<number, number>();
 
   constructor(
     private authService: AuthService,
@@ -93,6 +111,7 @@ export class Home implements OnInit {
     this.cargarPeliculasManuales();
   }
 
+  /** GET /api/movies → filtra source='manual' para la sección PostgreSQL del Home. */
   cargarPeliculasManuales() {
     this.cargandoManuales = true;
     this.errorManuales = '';
@@ -108,7 +127,7 @@ export class Home implements OnInit {
         console.error('[StreamZone] Error al cargar películas manuales:', error);
         this.peliculasManuales = [];
         this.peliculasManualesFiltradas = [];
-        this.errorManuales = 'No se pudieron cargar las películas manuales.';
+        this.errorManuales = 'No se pudo cargar parte del catálogo.';
         this.cargandoManuales = false;
         this.cdr.detectChanges();
       },
@@ -301,18 +320,29 @@ export class Home implements OnInit {
 
     if (!userId) {
       this.favoritosAPI = new Set();
+      this.favoritosManuales = new Set();
       this.favoriteIdByTmdb.clear();
+      this.favoriteIdByMovieId.clear();
       return;
     }
 
     this.favoritesApi.getByUserId(userId).subscribe({
       next: (response) => {
         this.favoritosAPI = new Set();
+        this.favoritosManuales = new Set();
         this.favoriteIdByTmdb.clear();
+        this.favoriteIdByMovieId.clear();
         (response.favorites ?? []).forEach((fav) => {
-          if (fav.movie?.tmdb_id) {
-            this.favoritosAPI.add(fav.movie.tmdb_id);
-            this.favoriteIdByTmdb.set(fav.movie.tmdb_id, fav.id);
+          const movie = fav.movie;
+          if (!movie) {
+            return;
+          }
+          if (movie.tmdb_id) {
+            this.favoritosAPI.add(movie.tmdb_id);
+            this.favoriteIdByTmdb.set(movie.tmdb_id, fav.id);
+          } else if (movie.id) {
+            this.favoritosManuales.add(movie.id);
+            this.favoriteIdByMovieId.set(movie.id, fav.id);
           }
         });
         console.log('Favoritos cargados en home:', Array.from(this.favoritosAPI));
@@ -329,18 +359,29 @@ export class Home implements OnInit {
     const userId = this.authService.getUserId();
     if (!userId) {
       this.verMasTardeAPI = new Set();
+      this.verMasTardeManuales = new Set();
       this.watchLaterIdByTmdb.clear();
+      this.watchLaterIdByMovieId.clear();
       return;
     }
 
     this.watchLaterApi.getByUserId(userId).subscribe({
       next: (response) => {
         this.verMasTardeAPI = new Set();
+        this.verMasTardeManuales = new Set();
         this.watchLaterIdByTmdb.clear();
+        this.watchLaterIdByMovieId.clear();
         (response.watch_later ?? []).forEach((item) => {
-          if (item.movie?.tmdb_id) {
-            this.verMasTardeAPI.add(item.movie.tmdb_id);
-            this.watchLaterIdByTmdb.set(item.movie.tmdb_id, item.id);
+          const movie = item.movie;
+          if (!movie) {
+            return;
+          }
+          if (movie.tmdb_id) {
+            this.verMasTardeAPI.add(movie.tmdb_id);
+            this.watchLaterIdByTmdb.set(movie.tmdb_id, item.id);
+          } else if (movie.id) {
+            this.verMasTardeManuales.add(movie.id);
+            this.watchLaterIdByMovieId.set(movie.id, item.id);
           }
         });
         console.log('Ver más tarde cargados en home:', Array.from(this.verMasTardeAPI));
@@ -414,6 +455,7 @@ export class Home implements OnInit {
     this.router.navigate(['/login']);
   }
 
+  /** Precarga catálogo TMDB (The Movie Database) para la sección API del Home. */
   cargarPeliculasPopularesAPI() {
     this.errorAPI = '';
     this.cargandoAPI = true;
@@ -481,10 +523,111 @@ export class Home implements OnInit {
     return buildPosterUrl(pelicula.poster_path);
   }
 
+  /** Lista unificada solo para pintar el catálogo propio en Home (SW + Transformers + admin). */
+  get catalogoStreamZoneFiltrado(): CatalogoHomeItem[] {
+    const items: CatalogoHomeItem[] = [];
+
+    for (const num of this.imagenesStFiltradas) {
+      items.push({ tipo: 'starwars', localNum: num });
+    }
+    for (const num of this.imagenesTransformersFiltradas) {
+      items.push({ tipo: 'transformers', localNum: num });
+    }
+    for (const pelicula of this.peliculasManualesFiltradas) {
+      items.push({ tipo: 'admin', pelicula });
+    }
+
+    return items;
+  }
+
+  getCatalogoTitulo(item: CatalogoHomeItem): string {
+    if (item.tipo === 'starwars') {
+      return this.getNombreStarWars(item.localNum);
+    }
+    if (item.tipo === 'transformers') {
+      return this.getNombreTransformers(item.localNum);
+    }
+    return item.pelicula.title;
+  }
+
+  getCatalogoImagen(item: CatalogoHomeItem): string {
+    if (item.tipo === 'starwars') {
+      return this.getImagenStPath(item.localNum);
+    }
+    if (item.tipo === 'transformers') {
+      return this.getImagenTransformersPath(item.localNum);
+    }
+    return this.getPosterManual(item.pelicula);
+  }
+
+  esFavoritoCatalogo(item: CatalogoHomeItem): boolean {
+    if (item.tipo === 'starwars') {
+      return this.esFavoritoStarWars(item.localNum);
+    }
+    if (item.tipo === 'transformers') {
+      return this.esFavoritoTransformers(item.localNum);
+    }
+    return this.favoritosManuales.has(item.pelicula.id);
+  }
+
+  estaEnVerMasTardeCatalogo(item: CatalogoHomeItem): boolean {
+    if (item.tipo === 'starwars') {
+      return this.estaEnVerMasTardeStarWars(item.localNum);
+    }
+    if (item.tipo === 'transformers') {
+      return this.estaEnVerMasTardeTransformers(item.localNum);
+    }
+    return this.verMasTardeManuales.has(item.pelicula.id);
+  }
+
+  toggleFavoritoCatalogo(item: CatalogoHomeItem) {
+    if (item.tipo === 'starwars') {
+      this.toggleFavoritoStarWars(item.localNum);
+      return;
+    }
+    if (item.tipo === 'transformers') {
+      this.toggleFavoritoTransformers(item.localNum);
+      return;
+    }
+    this.toggleFavoritoManual(item.pelicula);
+  }
+
+  toggleVerMasTardeCatalogo(item: CatalogoHomeItem) {
+    if (item.tipo === 'starwars') {
+      this.toggleVerMasTardeStarWars(item.localNum);
+      return;
+    }
+    if (item.tipo === 'transformers') {
+      this.toggleVerMasTardeTransformers(item.localNum);
+      return;
+    }
+    this.toggleVerMasTardeManual(item.pelicula);
+  }
+
+  reproducirCatalogoItem(item: CatalogoHomeItem) {
+    if (item.tipo === 'starwars') {
+      this.reproducirStarWars(item.localNum);
+      return;
+    }
+    if (item.tipo === 'transformers') {
+      this.reproducirTransformers(item.localNum);
+      return;
+    }
+    this.reproducirPeliculaManual(item.pelicula);
+  }
+
+  onCatalogoPosterError(event: Event, item: CatalogoHomeItem) {
+    if (item.tipo === 'admin') {
+      this.onManualPosterError(event, item.pelicula);
+    }
+  }
+
+  /** Controla visibilidad de «Añadir película» y botón eliminar (solo admin@gmail.com). */
   get esAdmin(): boolean {
     return isAdminUser(this.user);
   }
 
+  /** DELETE /api/movies/:id con confirmación; actualiza lista local sin recargar. */
   eliminarPeliculaManual(pelicula: ApiMovie) {
     if (!this.esAdmin) {
       return;
@@ -502,6 +645,10 @@ export class Home implements OnInit {
       next: (response) => {
         if (response.success) {
           this.peliculasManuales = this.peliculasManuales.filter((movie) => movie.id !== pelicula.id);
+          this.favoritosManuales.delete(pelicula.id);
+          this.verMasTardeManuales.delete(pelicula.id);
+          this.favoriteIdByMovieId.delete(pelicula.id);
+          this.watchLaterIdByMovieId.delete(pelicula.id);
           this.filtrarPeliculasManuales();
           this.cdr.detectChanges();
           return;
@@ -548,6 +695,86 @@ export class Home implements OnInit {
         num,
         titulo: this.getNombreTransformers(num),
       },
+    });
+  }
+
+  toggleFavoritoManual(pelicula: ApiMovie) {
+    const userId = this.obtenerUserIdOAlertar();
+    if (!userId) {
+      return;
+    }
+
+    if (this.favoritosManuales.has(pelicula.id)) {
+      const favoriteId = this.favoriteIdByMovieId.get(pelicula.id);
+      if (!favoriteId) {
+        this.favoritosManuales.delete(pelicula.id);
+        this.cargarFavoritosApiDesdeBackend();
+        return;
+      }
+
+      this.favoritesApi.delete(favoriteId).subscribe({
+        next: () => {
+          this.favoritosManuales.delete(pelicula.id);
+          this.favoriteIdByMovieId.delete(pelicula.id);
+          this.cdr.detectChanges();
+        },
+        error: (error) => this.manejarErrorBackend('eliminar favorito', error),
+      });
+      return;
+    }
+
+    const payload = toAddMovieByIdPayload(userId, pelicula.id);
+    this.favoritesApi.add(payload).subscribe({
+      next: (response) => {
+        if (response.favorite?.id && response.favorite.movie?.id) {
+          this.favoritosManuales.add(response.favorite.movie.id);
+          this.favoriteIdByMovieId.set(response.favorite.movie.id, response.favorite.id);
+        } else if (response.message?.includes('ya existía')) {
+          this.cargarFavoritosApiDesdeBackend();
+        }
+        this.cdr.detectChanges();
+      },
+      error: (error) => this.manejarErrorBackend('guardar favorito', error),
+    });
+  }
+
+  toggleVerMasTardeManual(pelicula: ApiMovie) {
+    const userId = this.obtenerUserIdOAlertar();
+    if (!userId) {
+      return;
+    }
+
+    if (this.verMasTardeManuales.has(pelicula.id)) {
+      const watchLaterId = this.watchLaterIdByMovieId.get(pelicula.id);
+      if (!watchLaterId) {
+        this.verMasTardeManuales.delete(pelicula.id);
+        this.cargarVerMasTardeApiDesdeBackend();
+        return;
+      }
+
+      this.watchLaterApi.delete(watchLaterId).subscribe({
+        next: () => {
+          this.verMasTardeManuales.delete(pelicula.id);
+          this.watchLaterIdByMovieId.delete(pelicula.id);
+          this.cdr.detectChanges();
+        },
+        error: (error) => this.manejarErrorBackend('eliminar de ver más tarde', error),
+      });
+      return;
+    }
+
+    const payload = toAddMovieByIdPayload(userId, pelicula.id);
+    this.watchLaterApi.add(payload).subscribe({
+      next: (response) => {
+        if (response.watch_later?.id && response.watch_later.movie?.id) {
+          this.verMasTardeManuales.add(response.watch_later.movie.id);
+          this.watchLaterIdByMovieId.set(response.watch_later.movie.id, response.watch_later.id);
+        } else if (response.message?.includes('ya estaba')) {
+          this.cargarVerMasTardeApiDesdeBackend();
+        }
+        this.cdr.detectChanges();
+      },
+      error: (error) => this.manejarErrorBackend('guardar en ver más tarde', error),
     });
   }
 

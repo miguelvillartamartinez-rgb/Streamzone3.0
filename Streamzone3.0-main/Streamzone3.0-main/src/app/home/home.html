@@ -65,124 +65,109 @@
         </button>
       </div>
 
-      <section class="imagenes-section" *ngIf="imagenesStFiltradas.length > 0 || !terminoBusqueda.trim()">
-        <div class="section-header">
-          <h2 class="section-title">
-            <span class="title-icon">⭐</span>
-            Saga Star Wars
-          </h2>
-          <p class="section-description">Activa la estrella o el reloj para guardar tus episodios favoritos</p>
-        </div>
-        <div class="imagenes-grid">
-          <div class="imagen-card" *ngFor="let i of imagenesStFiltradas">
-            <button 
-              class="ver-mas-tarde-clock-btn"
-              (click)="toggleVerMasTardeStarWars(i)"
-              [class.active]="estaEnVerMasTardeStarWars(i)"
-              title="Ver más tarde">
-              <span class="clock-icon">{{ estaEnVerMasTardeStarWars(i) ? '⏰' : '⏱️' }}</span>
-            </button>
-            <button 
-              class="favorito-star-btn"
-              (click)="toggleFavoritoStarWars(i)"
-              [class.active]="esFavoritoStarWars(i)"
-              title="Agregar a favoritos">
-              <span class="star-icon">{{ esFavoritoStarWars(i) ? '⭐' : '☆' }}</span>
-            </button>
-            <img 
-              [src]="getImagenStPath(i)" 
-              [alt]="getNombreStarWars(i)"
-              class="imagen-large">
-            <div class="imagen-overlay">
-              <button class="imagen-play-btn" type="button" (click)="reproducirStarWars(i)" title="Reproducir">
-                <span class="play-icon-large">▶</span>
-              </button>
-            </div>
-            <div class="imagen-nombre">
-              <h3 class="pelicula-nombre">{{ getNombreStarWars(i) }}</h3>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="imagenes-section" *ngIf="imagenesTransformersFiltradas.length > 0 || !terminoBusqueda.trim()">
-        <div class="section-header">
-          <h2 class="section-title">
-            <span class="title-icon">🤖</span>
-            Saga Transformers
-          </h2>
-          <p class="section-description">Renombramos los pósters para que identifiques cada entrega fácilmente</p>
-        </div>
-        <div class="imagenes-grid">
-          <div class="imagen-card" *ngFor="let i of imagenesTransformersFiltradas">
-            <button 
-              class="ver-mas-tarde-clock-btn"
-              (click)="toggleVerMasTardeTransformers(i)"
-              [class.active]="estaEnVerMasTardeTransformers(i)"
-              title="Ver más tarde">
-              <span class="clock-icon">{{ estaEnVerMasTardeTransformers(i) ? '⏰' : '⏱️' }}</span>
-            </button>
-            <button 
-              class="favorito-star-btn"
-              (click)="toggleFavoritoTransformers(i)"
-              [class.active]="esFavoritoTransformers(i)"
-              title="Agregar a favoritos">
-              <span class="star-icon">{{ esFavoritoTransformers(i) ? '⭐' : '☆' }}</span>
-            </button>
-            <img 
-              [src]="getImagenTransformersPath(i)" 
-              [alt]="getNombreTransformers(i)"
-              class="imagen-large">
-            <div class="imagen-overlay">
-              <button class="imagen-play-btn" type="button" (click)="reproducirTransformers(i)" title="Reproducir">
-                <span class="play-icon-large">▶</span>
-              </button>
-            </div>
-            <div class="imagen-nombre">
-              <h3 class="pelicula-nombre">{{ getNombreTransformers(i) | truncate:40 }}</h3>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Sección de películas de la API -->
-      <section class="imagenes-section" *ngIf="usarAPI">
+      <section
+        class="imagenes-section catalogo-streamzone-section"
+        *ngIf="catalogoStreamZoneFiltrado.length > 0 || !terminoBusqueda.trim() || cargandoManuales">
         <div class="section-header">
           <h2 class="section-title">
             <span class="title-icon">🎬</span>
-            Películas Populares (API Externa)
+            Catálogo StreamZone
           </h2>
-          <p class="section-description">Películas desde The Movie Database (TMDB)</p>
+          <p class="section-description">Películas disponibles en la plataforma</p>
         </div>
-        
-        <!-- Indicador de carga -->
+
+        <div *ngIf="cargandoManuales" class="cargando-api catalogo-loading">
+          <p>Cargando catálogo...</p>
+        </div>
+
+        <div *ngIf="!cargandoManuales && errorManuales" class="api-error">
+          <p>{{ errorManuales }}</p>
+        </div>
+
+        <div *ngIf="!cargandoManuales && catalogoStreamZoneFiltrado.length > 0" class="imagenes-grid">
+          <div
+            class="imagen-card"
+            [class.imagen-card-manual]="item.tipo === 'admin'"
+            [class.imagen-card-manual-admin]="item.tipo === 'admin' && esAdmin"
+            *ngFor="let item of catalogoStreamZoneFiltrado">
+            <button
+              class="ver-mas-tarde-clock-btn card-action-btn"
+              type="button"
+              (click)="item.tipo === 'admin' ? toggleVerMasTardeManual(item.pelicula) : toggleVerMasTardeCatalogo(item)"
+              [class.active]="estaEnVerMasTardeCatalogo(item)"
+              title="Ver más tarde">
+              <span class="clock-icon">{{ estaEnVerMasTardeCatalogo(item) ? '⏰' : '⏱️' }}</span>
+            </button>
+            <button
+              class="favorito-star-btn card-action-btn"
+              type="button"
+              (click)="item.tipo === 'admin' ? toggleFavoritoManual(item.pelicula) : toggleFavoritoCatalogo(item)"
+              [class.active]="esFavoritoCatalogo(item)"
+              title="Agregar a favoritos">
+              <span class="star-icon">{{ esFavoritoCatalogo(item) ? '⭐' : '☆' }}</span>
+            </button>
+            <button
+              *ngIf="item.tipo === 'admin' && esAdmin"
+              class="manual-delete-btn card-action-btn"
+              type="button"
+              (click)="eliminarPeliculaManual(item.pelicula)"
+              title="Eliminar película">
+              <span class="delete-icon">🗑️</span>
+            </button>
+            <img
+              [src]="getCatalogoImagen(item)"
+              [alt]="getCatalogoTitulo(item)"
+              class="imagen-large"
+              [attr.referrerpolicy]="item.tipo === 'admin' ? 'no-referrer' : null"
+              (error)="onCatalogoPosterError($event, item)">
+            <div class="imagen-overlay">
+              <button class="imagen-play-btn" type="button" (click)="reproducirCatalogoItem(item)" title="Reproducir">
+                <span class="play-icon-large">▶</span>
+              </button>
+            </div>
+            <div class="imagen-nombre">
+              <h3 class="pelicula-nombre">{{ getCatalogoTitulo(item) | truncate:40 }}</h3>
+              <p class="pelicula-calificacion" *ngIf="item.tipo === 'admin' && item.pelicula.genre">{{ item.pelicula.genre }}</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="imagenes-section tmdb-section" *ngIf="usarAPI">
+        <div class="section-header">
+          <h2 class="section-title">
+            <span class="title-icon">🌐</span>
+            Películas populares de TMDB
+          </h2>
+          <p class="section-description">Explora el catálogo externo de The Movie Database</p>
+        </div>
+
         <div *ngIf="cargandoAPI" class="cargando-api">
-          <p>Cargando películas desde la API...</p>
+          <p>Cargando películas...</p>
         </div>
 
         <div *ngIf="!cargandoAPI && errorAPI" class="api-error">
           <p>{{ errorAPI }}</p>
         </div>
 
-        <!-- Grid de películas de la API -->
         <div *ngIf="!cargandoAPI && peliculasAPIFiltradas.length > 0" class="imagenes-grid">
           <div class="imagen-card" *ngFor="let pelicula of peliculasAPIFiltradas">
-            <button 
+            <button
               class="ver-mas-tarde-clock-btn"
               (click)="toggleVerMasTardeAPI(pelicula)"
               [class.active]="estaEnVerMasTardeAPI(pelicula)"
               title="Ver más tarde">
               <span class="clock-icon">{{ estaEnVerMasTardeAPI(pelicula) ? '⏰' : '⏱️' }}</span>
             </button>
-            <button 
+            <button
               class="favorito-star-btn"
               (click)="toggleFavoritoAPI(pelicula)"
               [class.active]="esFavoritoAPI(pelicula)"
               title="Agregar a favoritos">
               <span class="star-icon">{{ esFavoritoAPI(pelicula) ? '⭐' : '☆' }}</span>
             </button>
-            <img 
-              [src]="getImagenAPI(pelicula)" 
+            <img
+              [src]="getImagenAPI(pelicula)"
               [alt]="getNombreAPI(pelicula)"
               class="imagen-large"
               (error)="onImageError($event)">
@@ -198,77 +183,24 @@
           </div>
         </div>
 
-        <!-- Mensaje cuando no hay resultados de API -->
         <div *ngIf="!cargandoAPI && peliculasAPIFiltradas.length === 0 && terminoBusqueda.trim()" class="sin-resultados-busqueda">
           <div class="sin-resultados-content">
             <span class="sin-resultados-icon">🔍</span>
             <h2>No se encontraron películas</h2>
-            <p>No hay resultados para "{{ terminoBusqueda }}" en la API</p>
+            <p>No hay resultados para "{{ terminoBusqueda }}" en TMDB</p>
             <p class="sin-resultados-sugerencia">Intenta buscar con otro término o verifica tu conexión a internet</p>
           </div>
         </div>
       </section>
 
-      <section class="imagenes-section" *ngIf="peliculasManualesFiltradas.length > 0 || (!terminoBusqueda.trim() && !cargandoManuales)">
-        <div class="section-header">
-          <h2 class="section-title">
-            <span class="title-icon">📝</span>
-            Películas manuales (PostgreSQL)
-          </h2>
-          <p class="section-description">Películas dadas de alta desde StreamZone</p>
-        </div>
-
-        <div *ngIf="cargandoManuales" class="cargando-api">
-          <p>Cargando películas manuales...</p>
-        </div>
-
-        <div *ngIf="!cargandoManuales && errorManuales" class="api-error">
-          <p>{{ errorManuales }}</p>
-        </div>
-
-        <div *ngIf="!cargandoManuales && peliculasManualesFiltradas.length > 0" class="imagenes-grid">
-          <div class="imagen-card" *ngFor="let pelicula of peliculasManualesFiltradas">
-            <button
-              *ngIf="esAdmin"
-              class="manual-delete-btn"
-              type="button"
-              (click)="eliminarPeliculaManual(pelicula)"
-              title="Eliminar película manual">
-              <span class="delete-icon">🗑️</span>
-            </button>
-            <img
-              [src]="getPosterManual(pelicula)"
-              [alt]="pelicula.title"
-              class="imagen-large"
-              referrerpolicy="no-referrer"
-              (error)="onManualPosterError($event, pelicula)">
-            <div class="imagen-overlay">
-              <button class="imagen-play-btn" type="button" (click)="reproducirPeliculaManual(pelicula)" title="Reproducir">
-                <span class="play-icon-large">▶</span>
-              </button>
-            </div>
-            <div class="imagen-nombre">
-              <h3 class="pelicula-nombre">{{ pelicula.title | truncate:40 }}</h3>
-              <p class="pelicula-calificacion" *ngIf="pelicula.genre">{{ pelicula.genre }}</p>
-            </div>
-          </div>
-        </div>
-
-        <div *ngIf="!cargandoManuales && peliculasManualesFiltradas.length === 0 && !errorManuales" class="sin-resultados-busqueda">
-          <div class="sin-resultados-content">
-            <p class="sin-resultados-sugerencia" *ngIf="esAdmin">Aún no hay películas manuales. Usa «Añadir película» para crear una.</p>
-            <p class="sin-resultados-sugerencia" *ngIf="!esAdmin">Aún no hay películas manuales en el catálogo.</p>
-          </div>
-        </div>
-      </section>
-
-      <!-- Mensaje cuando no hay resultados (películas locales) -->
-      <div *ngIf="!usarAPI && terminoBusqueda.trim() && imagenesStFiltradas.length === 0 && imagenesTransformersFiltradas.length === 0" class="sin-resultados-busqueda">
+      <div
+        *ngIf="terminoBusqueda.trim() && catalogoStreamZoneFiltrado.length === 0 && !cargandoManuales && !usarAPI"
+        class="sin-resultados-busqueda">
         <div class="sin-resultados-content">
           <span class="sin-resultados-icon">🔍</span>
           <h2>No se encontraron películas</h2>
           <p>No hay resultados para "{{ terminoBusqueda }}"</p>
-          <p class="sin-resultados-sugerencia">Intenta buscar con otro término o activa la búsqueda por API</p>
+          <p class="sin-resultados-sugerencia">Intenta buscar con otro término o activa la exploración en TMDB</p>
         </div>
       </div>
     </div>

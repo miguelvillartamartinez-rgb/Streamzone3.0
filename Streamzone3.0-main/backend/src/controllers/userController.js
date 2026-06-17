@@ -1,3 +1,8 @@
+/**
+ * Controller de autenticación: registro e inicio de sesión.
+ * Flujo: validar body → comprobar reglas de negocio → userModel → respuesta JSON.
+ * Códigos HTTP: 400 validación, 401 credenciales, 409 duplicado, 500 error interno.
+ */
 const userModel = require('../models/userModel');
 const { isGmailEmail } = require('../utils/emailValidation');
 
@@ -5,6 +10,7 @@ function isEmpty(value) {
   return typeof value !== 'string' || value.trim() === '';
 }
 
+/** Excluye password de las respuestas al cliente Angular. */
 function toPublicUser(user) {
   return {
     id: user.id,
@@ -14,6 +20,10 @@ function toPublicUser(user) {
   };
 }
 
+/**
+ * POST /api/users/register
+ * Valida Gmail, comprueba email único e inserta en users.
+ */
 async function register(req, res) {
   const { username, email, password } = req.body;
 
@@ -68,6 +78,10 @@ async function register(req, res) {
   }
 }
 
+/**
+ * POST /api/users/login
+ * Busca por email, compara password (texto plano en fase TFG) y devuelve sesión.
+ */
 async function login(req, res) {
   const { email, password } = req.body;
 

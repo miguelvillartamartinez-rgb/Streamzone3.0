@@ -1,3 +1,8 @@
+/**
+ * Conexión a PostgreSQL mediante pg.Pool.
+ * Pool reutiliza conexiones entre peticiones HTTP (más eficiente que conectar/desconectar).
+ * Credenciales leídas de variables de entorno (.env): DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD.
+ */
 const { Pool } = require('pg');
 
 const pool = new Pool({
@@ -9,6 +14,10 @@ const pool = new Pool({
   connectionTimeoutMillis: 3000,
 });
 
+/**
+ * Comprueba que PostgreSQL responde antes de usarlo como almacenamiento principal.
+ * storageMode.js llama a esta función al arrancar; si falla o hay timeout, se usa JSON fallback.
+ */
 async function testConnection() {
   const timeoutMs = 3000;
 

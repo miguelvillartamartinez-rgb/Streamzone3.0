@@ -1,9 +1,14 @@
+/**
+ * Modelo "Ver más tarde": misma estructura que favorites pero tabla watch_later.
+ * Permite al usuario guardar películas TMDB para verlas después.
+ */
 const { pool } = require('../db');
 const { getStorageMode } = require('../storage/storageMode');
 const { createListStore } = require('../storage/jsonListStore');
 
 const jsonWatchLaterStore = createListStore('watch_later');
 
+/** Lista ver más tarde de un usuario con JOIN a movies. */
 async function findByUserId(userId) {
   if ((await getStorageMode()) === 'json') {
     return jsonWatchLaterStore.findByUserId(userId);
@@ -20,6 +25,10 @@ async function findByUserId(userId) {
        m.overview,
        m.poster_path,
        m.release_date,
+       m.genre,
+       m.duration_minutes,
+       m.video_url,
+       m.source,
        m.created_at AS movie_created_at
      FROM watch_later w
      INNER JOIN movies m ON m.id = w.movie_id

@@ -1,3 +1,7 @@
+/**
+ * Factory para stores de listas usuario-película (favorites, watch_later) en modo JSON.
+ * Simula JOIN con movies leyendo ambos archivos en memoria.
+ */
 const { readCollection, writeCollection, nextId, nowIso } = require('./jsonDb');
 
 function createListStore(collectionName) {
@@ -22,6 +26,10 @@ function createListStore(collectionName) {
           overview: movie.overview,
           poster_path: movie.poster_path,
           release_date: movie.release_date,
+          genre: movie.genre ?? null,
+          duration_minutes: movie.duration_minutes ?? null,
+          video_url: movie.video_url ?? null,
+          source: movie.source ?? 'tmdb',
           movie_created_at: movie.created_at,
         };
       })

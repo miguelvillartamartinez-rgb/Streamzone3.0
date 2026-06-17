@@ -1,8 +1,10 @@
 .contenedor {
+  min-height: 100vh;
   padding: 40px;
   text-align: center;
   color: white;
   position: relative;
+  background: linear-gradient(180deg, #0b0b0b 0%, #141414 50%, #0b0b0b 100%);
 }
 
 .page-subtitle {
@@ -14,8 +16,8 @@
   position: absolute;
   top: 20px;
   left: 20px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: #1f1f1f;
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 50%;
   width: 50px;
   height: 50px;
@@ -26,12 +28,11 @@
   align-items: center;
   justify-content: center;
   transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
 }
 
 .boton-volver:hover {
-  background: rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.4);
+  background: #e50914;
+  border-color: #e50914;
   transform: scale(1.1);
 }
 
@@ -44,19 +45,26 @@
 
 .input-box input {
   padding: 10px;
-  border-radius: 10px;
-  border: none;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: #1f1f1f;
+  color: white;
   width: 260px;
 }
 
 .input-box button {
   padding: 10px 20px;
-  border-radius: 10px;
+  border-radius: 6px;
   border: none;
-  background: white;
-  color: #0a1a33;
+  background: #e50914;
+  color: white;
   font-weight: bold;
   cursor: pointer;
+  transition: background 0.25s ease;
+}
+
+.input-box button:hover {
+  background: #f40612;
 }
 
 .lista {
@@ -67,13 +75,14 @@
 }
 
 .item {
-  background: white;
-  color: #0a1a33;
+  background: #1f1f1f;
+  color: white;
   padding: 12px;
-  border-radius: 10px;
+  border-radius: 8px;
   min-width: 260px;
   text-align: center;
   font-weight: bold;
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .item.vacio {
@@ -81,7 +90,6 @@
   font-style: italic;
 }
 
-/* Sección de Star Wars */
 .starwars-section {
   margin-bottom: 40px;
 }
@@ -100,18 +108,18 @@
 }
 
 .starwars-card {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 16px;
+  background: #1f1f1f;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
   overflow: hidden;
   transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
 }
 
 .starwars-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-  border-color: rgba(255, 217, 75, 0.3);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(229, 9, 20, 0.3);
+  border-color: rgba(229, 9, 20, 0.4);
 }
 
 .starwars-image {
@@ -135,28 +143,27 @@
 
 .reproducir-btn {
   padding: 8px 16px;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 217, 75, 0.5);
-  background: rgba(255, 217, 75, 0.25);
+  border-radius: 6px;
+  border: none;
+  background: #e50914;
   color: white;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
   margin-bottom: 8px;
 }
 
 .reproducir-btn:hover {
-  background: rgba(255, 217, 75, 0.45);
-  border-color: rgba(255, 217, 75, 0.8);
-  transform: scale(1.05);
+  background: #f40612;
+  transform: scale(1.03);
 }
 
 .eliminar-btn {
   padding: 8px 16px;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 77, 77, 0.5);
-  background: rgba(255, 77, 77, 0.2);
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: #2a2a2a;
   color: white;
   font-size: 14px;
   font-weight: 500;
@@ -165,12 +172,11 @@
 }
 
 .eliminar-btn:hover {
-  background: rgba(255, 77, 77, 0.4);
-  border-color: rgba(255, 77, 77, 0.8);
-  transform: scale(1.05);
+  background: #b20710;
+  border-color: #e50914;
+  transform: scale(1.03);
 }
 
-/* Mensaje cuando no hay favoritos */
 .mensaje-vacio {
   text-align: center;
   padding: 60px 20px;

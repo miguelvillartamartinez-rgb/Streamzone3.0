@@ -1,7 +1,12 @@
+/**
+ * Capa de acceso a datos de usuarios (patrón Model).
+ * Abstrae PostgreSQL vs JSON fallback: los controllers no saben dónde se persiste.
+ */
 const { pool } = require('../db');
 const { getStorageMode } = require('../storage/storageMode');
 const jsonUserStore = require('../storage/jsonUserStore');
 
+/** Busca usuario por PK; no devuelve password (solo datos públicos de sesión). */
 async function findById(id) {
   if ((await getStorageMode()) === 'json') {
     return jsonUserStore.findById(id);
@@ -16,6 +21,7 @@ async function findById(id) {
   return result.rows[0] || null;
 }
 
+/** Usado en login/registro; incluye password para comparación en el controller. */
 async function findByEmail(email) {
   if ((await getStorageMode()) === 'json') {
     return jsonUserStore.findByEmail(email);
@@ -30,6 +36,7 @@ async function findByEmail(email) {
   return result.rows[0] || null;
 }
 
+/** INSERT en tabla users; devuelve fila sin password. */
 async function createUser({ username, email, password }) {
   if ((await getStorageMode()) === 'json') {
     return jsonUserStore.createUser({ username, email, password });

@@ -1,12 +1,17 @@
+/**
+ * Controller de favoritos.
+ * Flujo al añadir: validar user_id → findOrCreate película TMDB en movies → INSERT en favorites.
+ */
 const userModel = require('../models/userModel');
 const movieModel = require('../models/movieModel');
 const favoriteModel = require('../models/favoriteModel');
 const {
-  parseMovieInput,
+  parseFavoriteMovieReference,
   parseUserId,
   formatFavoriteRow,
 } = require('../utils/movieValidation');
 
+/** GET /api/favorites/:userId — lista con JOIN movies. */
 async function getFavoritesByUserId(req, res) {
   const userId = parseUserId(req.params.userId);
   if (!userId) {
@@ -41,6 +46,10 @@ async function getFavoritesByUserId(req, res) {
   }
 }
 
+/**
+ * POST /api/favorites — body incluye user_id + datos TMDB (tmdb_id, title, ...).
+ * Idempotente: si ya existía el par usuario-película, devuelve 200 sin duplicar.
+ */
 async function addFavorite(req, res) {
   const userId = parseUserId(req.body.user_id);
   if (!userId) {
@@ -50,11 +59,11 @@ async function addFavorite(req, res) {
     });
   }
 
-  const validation = parseMovieInput(req.body);
-  if (!validation.valid) {
+  const reference = parseFavoriteMovieReference(req.body);
+  if (!reference.valid) {
     return res.status(400).json({
       success: false,
-      message: validation.message,
+      message: reference.message,
     });
   }
 
@@ -67,7 +76,18 @@ async function addFavorite(req, res) {
       });
     }
 
-    const { movie } = await movieModel.findOrCreate(validation.data);
+    let movie;
+    if (reference.mode === 'by_id') {
+      movie = await movieModel.findById(reference.movieId);
+      if (!movie) {
+        return res.status(404).json({
+          success: false,
+          message: 'Película no encontrada',
+        });
+      }
+    } else {
+      ({ movie } = await movieModel.findOrCreate(reference.data));
+    }
 
     const existingFavorite = await favoriteModel.findByUserAndMovie(userId, movie.id);
     if (existingFavorite) {
@@ -105,6 +125,7 @@ async function addFavorite(req, res) {
   }
 }
 
+/** DELETE /api/favorites/:id — elimina fila de la tabla puente por id de favorito. */
 async function deleteFavorite(req, res) {
   const favoriteId = parseUserId(req.params.id);
   if (!favoriteId) {

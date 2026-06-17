@@ -1,3 +1,8 @@
+/**
+ * Guard de ruta para gestión de catálogo (solo administrador).
+ * Se combina con authGuard en /alta-pelicula: primero sesión, luego email admin@gmail.com.
+ * Usuarios normales son redirigidos a /home sin acceder al formulario de alta.
+ */
 import { inject } from '@angular/core';
 import { Router, CanActivateFn } from '@angular/router';
 import { AuthService } from './auth';

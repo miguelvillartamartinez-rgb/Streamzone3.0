@@ -58,3 +58,11 @@ export function toAddMovieListPayload(
     release_date: pelicula.release_date,
   };
 }
+
+/** Enlaza favoritos/ver más tarde con una fila existente en movies (películas manuales). */
+export function toAddMovieByIdPayload(userId: number, movieId: number): AddMovieListPayload {
+  return {
+    user_id: Number(userId),
+    movie_id: Number(movieId),
+  };
+}

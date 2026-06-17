@@ -1,3 +1,8 @@
+/**
+ * Selección automática del backend de persistencia: PostgreSQL o JSON en disco.
+ * Si testConnection() falla al arrancar, el TFG sigue funcionando con backend/data/*.json
+ * (útil en desarrollo sin Docker/PostgreSQL).
+ */
 const { testConnection } = require('../db');
 
 let mode = null;

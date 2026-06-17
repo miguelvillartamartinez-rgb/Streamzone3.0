@@ -1,3 +1,7 @@
+/**
+ * Rutas del catálogo — montadas en /api/movies
+ * Orden: rutas fijas (/manual) antes de /:id para evitar colisiones en Express.
+ */
 const express = require('express');
 const movieController = require('../controllers/movieController');
 

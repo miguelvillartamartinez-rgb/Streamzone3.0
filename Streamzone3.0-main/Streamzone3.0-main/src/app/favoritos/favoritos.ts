@@ -10,8 +10,9 @@ interface PeliculaFavorita {
   id: number;
   nombre: string;
   imagen: string;
-  origen: 'local' | 'api';
+  origen: 'local' | 'api' | 'manual';
   tmdbId?: number;
+  movieId?: number;
   saga?: 'starwars' | 'transformers';
   localNum?: number;
 }
@@ -166,6 +167,13 @@ export class Favoritos implements OnInit {
   }
 
   reproducirPelicula(pelicula: PeliculaFavorita) {
+    if (pelicula.origen === 'manual' && pelicula.movieId) {
+      this.router.navigate(['/reproducir'], {
+        queryParams: { origen: 'db', id: pelicula.movieId },
+      });
+      return;
+    }
+
     if (pelicula.origen === 'api' && pelicula.tmdbId) {
       this.router.navigate(['/reproducir'], {
         queryParams: { origen: 'tmdb', tmdbId: pelicula.tmdbId },
@@ -195,8 +203,9 @@ export class Favoritos implements OnInit {
       id: item.id,
       nombre: item.nombre,
       imagen: item.imagen,
-      origen: 'api',
-      tmdbId: item.tmdbId,
+      origen: item.origen,
+      tmdbId: item.tmdbId ?? undefined,
+      movieId: item.movieId,
     };
   }
 }

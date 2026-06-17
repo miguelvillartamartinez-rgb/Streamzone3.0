@@ -1,3 +1,6 @@
+/**
+ * Rutas "Ver más tarde" — montadas en /api/watch-later
+ */
 const express = require('express');
 const watchLaterController = require('../controllers/watchLaterController');
 

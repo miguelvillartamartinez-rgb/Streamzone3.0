@@ -7,6 +7,10 @@ import { DEMO_VIDEO_URL } from '../config/local-playback.config';
 import { AuthService } from '../auth';
 import { isAdminUser } from '../utils/admin-user';
 
+/**
+ * Formulario de alta manual de películas (solo administrador).
+ * Flujo: validación local → POST /api/movies/manual → redirección a /reproducir?origen=db.
+ */
 @Component({
   selector: 'app-alta-pelicula',
   standalone: true,
@@ -35,6 +39,7 @@ export class AltaPelicula implements OnInit {
   ) {}
 
   ngOnInit() {
+    // Defensa en profundidad junto a adminGuard en app.routes.ts
     if (!isAdminUser(this.authService.getUser())) {
       this.router.navigate(['/home']);
     }
@@ -86,6 +91,7 @@ export class AltaPelicula implements OnInit {
             this.cdr.detectChanges();
 
             setTimeout(() => {
+              // Tras crear, lleva al reproductor con la película recién persistida en BD
               this.router.navigate(['/reproducir'], {
                 queryParams: { origen: 'db', id: response.movie!.id },
               });

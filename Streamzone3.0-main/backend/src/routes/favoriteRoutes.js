@@ -1,3 +1,6 @@
+/**
+ * Rutas de favoritos — montadas en /api/favorites
+ */
 const express = require('express');
 const favoriteController = require('../controllers/favoriteController');
 

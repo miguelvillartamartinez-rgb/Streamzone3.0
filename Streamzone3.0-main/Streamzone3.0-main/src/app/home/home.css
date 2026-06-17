@@ -3,7 +3,7 @@
    ============================================ */
 .home-wrapper {
   min-height: 100vh;
-  background: linear-gradient(180deg, #0a1a33 0%, #0f2342 50%, #0a1a33 100%);
+  background: linear-gradient(180deg, #0b0b0b 0%, #141414 50%, #0b0b0b 100%);
   color: white;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
 }
@@ -15,10 +15,10 @@
   width: 100%;
   max-width: 1600px;
   margin: 0 auto;
-  background: rgba(10, 26, 51, 0.8);
+  background: rgba(0, 0, 0, 0.92);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(229, 9, 20, 0.2);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -90,9 +90,9 @@
 
 .busqueda-input-header:focus {
   outline: none;
-  border-color: rgba(255, 217, 75, 0.5);
+  border-color: rgba(229, 9, 20, 0.5);
   background: rgba(255, 255, 255, 0.15);
-  box-shadow: 0 4px 12px rgba(255, 217, 75, 0.2);
+  box-shadow: 0 4px 12px rgba(229, 9, 20, 0.2);
 }
 
 .busqueda-icon-header {
@@ -107,7 +107,7 @@
   position: absolute;
   right: 40px;
   font-size: 11px;
-  color: rgba(255, 217, 75, 0.8);
+  color: rgba(229, 9, 20, 0.8);
   pointer-events: none;
   white-space: nowrap;
   opacity: 0.8;
@@ -130,10 +130,10 @@
 }
 
 .menu-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.3);
+  background: rgba(229, 9, 20, 0.35);
+  border-color: rgba(229, 9, 20, 0.55);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 16px rgba(229, 9, 20, 0.25);
 }
 
 .menu-btn:active {
@@ -151,18 +151,18 @@
 
 /* Botón de API en el header */
 .api-toggle-btn.active {
-  background: rgba(100, 181, 246, 0.3) !important;
-  border-color: rgba(100, 181, 246, 0.6) !important;
-  box-shadow: 0 0 15px rgba(100, 181, 246, 0.4) !important;
+  background: rgba(229, 9, 20, 0.3) !important;
+  border-color: rgba(229, 9, 20, 0.6) !important;
+  box-shadow: 0 0 15px rgba(229, 9, 20, 0.4) !important;
 }
 
 .api-toggle-btn {
-  background: rgba(100, 181, 246, 0.2);
-  border-color: rgba(100, 181, 246, 0.4);
+  background: rgba(229, 9, 20, 0.2);
+  border-color: rgba(229, 9, 20, 0.4);
 }
 
 .api-toggle-btn:hover {
-  background: rgba(100, 181, 246, 0.25) !important;
+  background: rgba(229, 9, 20, 0.25) !important;
 }
 
 /* ============================================
@@ -254,7 +254,7 @@
 }
 
 .brand-highlight {
-  background: linear-gradient(135deg, #ffd94b 0%, #ffb347 100%);
+  background: linear-gradient(135deg, #e50914 0%, #b20710 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -323,8 +323,8 @@
    TARJETAS DE PELÍCULAS
    ============================================ */
 .peli-card {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #1f1f1f;
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 20px;
   overflow: hidden;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -354,8 +354,8 @@
 
 .peli-card:hover {
   transform: translateY(-8px) scale(1.02);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
-  border-color: rgba(255, 217, 75, 0.3);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(229, 9, 20, 0.35);
+  border-color: rgba(229, 9, 20, 0.45);
 }
 
 /* Imagen de la tarjeta */
@@ -364,7 +364,7 @@
   width: 100%;
   padding-top: 150%;
   overflow: hidden;
-  background: linear-gradient(135deg, #1a2f4d 0%, #0f2342 100%);
+  background: linear-gradient(135deg, #1f1f1f 0%, #141414 100%);
 }
 
 .card-image {
@@ -386,7 +386,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #1a2f4d 0%, #0f2342 100%);
+  background: linear-gradient(135deg, #1f1f1f 0%, #141414 100%);
 }
 
 .placeholder-icon {
@@ -425,8 +425,8 @@
   height: 56px;
   border-radius: 50%;
   border: none;
-  background: rgba(255, 255, 255, 0.9);
-  color: #0a1a33;
+  background: #e50914;
+  color: white;
   font-size: 20px;
   cursor: pointer;
   display: flex;
@@ -437,17 +437,18 @@
 }
 
 .play-btn:hover {
-  background: #ffd94b;
+  background: #f40612;
   transform: scale(1.1);
 }
 
 .favorite-btn {
-  background: rgba(255, 77, 77, 0.9);
+  background: #2a2a2a;
   color: white;
+  border: 2px solid rgba(229, 9, 20, 0.5);
 }
 
 .favorite-btn:hover {
-  background: #ff5252;
+  background: #e50914;
   transform: scale(1.1);
 }
 
@@ -498,13 +499,13 @@
 }
 
 .card-btn.primary {
-  background: linear-gradient(135deg, #ffd94b 0%, #ffb347 100%);
-  color: #0a1a33;
+  background: linear-gradient(135deg, #e50914 0%, #b20710 100%);
+  color: white;
 }
 
 .card-btn.primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(255, 217, 75, 0.4);
+  box-shadow: 0 4px 12px rgba(229, 9, 20, 0.4);
 }
 
 .card-btn.secondary {
@@ -526,6 +527,49 @@
   animation: fadeInUp 0.8s ease-out 0.4s both;
 }
 
+.catalogo-streamzone-section {
+  margin-top: 48px;
+}
+
+.catalogo-subsection {
+  margin-top: 40px;
+}
+
+.catalogo-subsection:first-of-type {
+  margin-top: 24px;
+}
+
+.catalogo-subsection-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 0 0 8px;
+  font-size: 24px;
+  font-weight: 600;
+  color: white;
+}
+
+.subsection-icon {
+  font-size: 22px;
+}
+
+.catalogo-subsection-description {
+  text-align: center;
+  margin: 0 0 20px;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.catalogo-loading {
+  padding: 24px 20px;
+}
+
+.tmdb-section {
+  border-top: 1px solid rgba(229, 9, 20, 0.2);
+  padding-top: 16px;
+}
+
 .imagenes-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -536,10 +580,10 @@
 .imagen-card {
   position: relative;
   width: 100%;
-  border-radius: 20px;
+  border-radius: 8px;
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #1f1f1f;
+  border: 1px solid rgba(255, 255, 255, 0.08);
   cursor: pointer;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
@@ -549,8 +593,8 @@
 
 .imagen-card:hover {
   transform: translateY(-8px) scale(1.02);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
-  border-color: rgba(255, 217, 75, 0.3);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6), 0 0 20px rgba(229, 9, 20, 0.15);
+  border-color: rgba(229, 9, 20, 0.45);
 }
 
 .imagen-large {
@@ -589,8 +633,8 @@
   height: 80px;
   border-radius: 50%;
   border: none;
-  background: rgba(255, 255, 255, 0.95);
-  color: #0a1a33;
+  background: #e50914;
+  color: white;
   font-size: 28px;
   cursor: pointer;
   display: flex;
@@ -602,9 +646,9 @@
 }
 
 .imagen-play-btn:hover {
-  background: #ffd94b;
+  background: #f40612;
   transform: scale(1.15);
-  box-shadow: 0 6px 30px rgba(255, 217, 75, 0.5);
+  box-shadow: 0 6px 30px rgba(229, 9, 20, 0.5);
 }
 
 .play-icon-large {
@@ -612,11 +656,12 @@
   line-height: 1;
 }
 
-/* Botón de reloj "Ver Más Tarde" */
-.ver-mas-tarde-clock-btn {
+/* Botones de acción en tarjetas (favorito, ver más tarde, eliminar) */
+.ver-mas-tarde-clock-btn,
+.favorito-star-btn,
+.manual-delete-btn,
+.card-action-btn {
   position: absolute;
-  top: 12px;
-  left: 12px;
   width: 40px;
   height: 40px;
   border-radius: 50%;
@@ -624,32 +669,38 @@
   background: rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(10px);
   color: white;
-  font-size: 20px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.3s ease;
-  z-index: 10;
+  z-index: 12;
   padding: 0;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
+/* Botón de reloj "Ver Más Tarde" */
+.ver-mas-tarde-clock-btn {
+  top: 12px;
+  left: 12px;
+  font-size: 20px;
+}
+
 .ver-mas-tarde-clock-btn:hover {
   background: rgba(0, 0, 0, 0.8);
-  border-color: rgba(100, 181, 246, 0.6);
+  border-color: rgba(229, 9, 20, 0.6);
   transform: scale(1.1);
-  box-shadow: 0 4px 12px rgba(100, 181, 246, 0.4);
+  box-shadow: 0 4px 12px rgba(229, 9, 20, 0.4);
 }
 
 .ver-mas-tarde-clock-btn.active {
-  background: rgba(100, 181, 246, 0.9);
-  border-color: rgba(100, 181, 246, 1);
-  box-shadow: 0 4px 12px rgba(100, 181, 246, 0.5);
+  background: #e50914;
+  border-color: #f40612;
+  box-shadow: 0 4px 12px rgba(229, 9, 20, 0.5);
 }
 
 .ver-mas-tarde-clock-btn.active:hover {
-  background: rgba(100, 181, 246, 1);
+  background: #f40612;
   transform: scale(1.15);
 }
 
@@ -661,42 +712,26 @@
 
 /* Botón de estrella favorito */
 .favorito-star-btn {
-  position: absolute;
   top: 12px;
   right: 12px;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(10px);
-  color: white;
   font-size: 20px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s ease;
-  z-index: 10;
-  padding: 0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .favorito-star-btn:hover {
   background: rgba(0, 0, 0, 0.8);
-  border-color: rgba(255, 217, 75, 0.6);
+  border-color: rgba(229, 9, 20, 0.6);
   transform: scale(1.1);
-  box-shadow: 0 4px 12px rgba(255, 217, 75, 0.4);
+  box-shadow: 0 4px 12px rgba(229, 9, 20, 0.4);
 }
 
 .favorito-star-btn.active {
-  background: rgba(255, 217, 75, 0.9);
-  border-color: rgba(255, 217, 75, 1);
-  box-shadow: 0 4px 12px rgba(255, 217, 75, 0.5);
+  background: #e50914;
+  border-color: #f40612;
+  box-shadow: 0 4px 12px rgba(229, 9, 20, 0.5);
 }
 
 .favorito-star-btn.active:hover {
-  background: rgba(255, 217, 75, 1);
+  background: #f40612;
   transform: scale(1.15);
 }
 
@@ -707,25 +742,21 @@
 }
 
 .manual-delete-btn {
-  position: absolute;
-  top: 12px;
+  top: auto;
+  bottom: 12px;
   right: 12px;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(10px);
-  color: white;
   font-size: 18px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s ease;
-  z-index: 10;
-  padding: 0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  border-color: rgba(229, 9, 20, 0.35);
+  background: rgba(20, 20, 20, 0.75);
+  z-index: 13;
+}
+
+.imagen-card-manual-admin .imagen-nombre {
+  padding-right: 52px;
+}
+
+.imagen-card-manual .imagen-overlay {
+  z-index: 5;
 }
 
 .manual-delete-btn:hover {
@@ -938,8 +969,8 @@
 .toggle-api-btn {
   margin-top: 30px;
   padding: 14px 28px;
-  background: linear-gradient(135deg, rgba(100, 181, 246, 0.3) 0%, rgba(100, 181, 246, 0.2) 100%);
-  border: 2px solid rgba(100, 181, 246, 0.5);
+  background: linear-gradient(135deg, rgba(229, 9, 20, 0.3) 0%, rgba(229, 9, 20, 0.2) 100%);
+  border: 2px solid rgba(229, 9, 20, 0.5);
   border-radius: 30px;
   color: white;
   font-size: 16px;
@@ -959,9 +990,9 @@
 }
 
 .toggle-api-btn.active {
-  background: rgba(100, 181, 246, 0.3);
-  border-color: rgba(100, 181, 246, 0.6);
-  box-shadow: 0 0 20px rgba(100, 181, 246, 0.4);
+  background: rgba(229, 9, 20, 0.3);
+  border-color: rgba(229, 9, 20, 0.6);
+  box-shadow: 0 0 20px rgba(229, 9, 20, 0.4);
 }
 
 /* ============================================
@@ -1004,7 +1035,7 @@
    ============================================ */
 .pelicula-calificacion {
   font-size: 14px;
-  color: rgba(255, 217, 75, 0.9);
+  color: rgba(229, 9, 20, 0.95);
   margin: 8px 0 0 0;
   font-weight: 500;
 }

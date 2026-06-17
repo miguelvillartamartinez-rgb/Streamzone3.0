@@ -1,3 +1,6 @@
+/**
+ * Rutas de autenticación — montadas en /api/users
+ */
 const express = require('express');
 const userController = require('../controllers/userController');
 

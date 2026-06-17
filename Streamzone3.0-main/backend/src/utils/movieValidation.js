@@ -1,3 +1,9 @@
+/**
+ * Validación y normalización de payloads de películas.
+ * Separa reglas TMDB (tmdb_id obligatorio) vs manual (title obligatorio, sin tmdb_id).
+ */
+
+/** Películas TMDB: obligatorios tmdb_id (entero > 0) y title. Usado en favoritos/ver más tarde. */
 function parseMovieInput(body) {
   const { tmdb_id, title, overview, poster_path, release_date } = body;
 
@@ -51,6 +57,7 @@ function parseOptionalPositiveInt(value) {
   return parsed;
 }
 
+/** Acepta AAAA o AAAA-MM-DD; normaliza año solo a YYYY-01-01. */
 function normalizeReleaseDate(value) {
   if (value === undefined || value === null || value === '') {
     return null;
@@ -69,6 +76,11 @@ function normalizeReleaseDate(value) {
   return { error: 'release_date debe ser AAAA o AAAA-MM-DD' };
 }
 
+/**
+ * Películas manuales (POST /api/movies/manual).
+ * Obligatorio: title. Opcionales con límites de longitud: genre, poster_path, video_url.
+ * Siempre asigna source='manual' y tmdb_id=null.
+ */
 function parseManualMovieInput(body) {
   const { title, overview, release_date, genre, duration_minutes, poster_path, video_url } = body;
 
@@ -147,6 +159,26 @@ function parseUserId(value) {
   return userId;
 }
 
+/**
+ * Resuelve cómo enlazar favoritos/ver más tarde con movies:
+ *   - movie_id → película ya existente (p. ej. source='manual')
+ *   - tmdb_id + title → findOrCreate TMDB (comportamiento anterior)
+ */
+function parseFavoriteMovieReference(body) {
+  const movieId = parseUserId(body.movie_id);
+  if (movieId) {
+    return { valid: true, mode: 'by_id', movieId };
+  }
+
+  const tmdbValidation = parseMovieInput(body);
+  if (!tmdbValidation.valid) {
+    return tmdbValidation;
+  }
+
+  return { valid: true, mode: 'tmdb', data: tmdbValidation.data };
+}
+
+/** Unifica filas JOIN (favorites/watch_later + movies) al DTO ApiMovie del frontend. */
 function formatMovie(row) {
   return {
     id: row.movie_id ?? row.id,
@@ -185,6 +217,7 @@ module.exports = {
   parseMovieInput,
   parseManualMovieInput,
   parseUserId,
+  parseFavoriteMovieReference,
   formatMovie,
   formatFavoriteRow,
   formatWatchLaterRow,

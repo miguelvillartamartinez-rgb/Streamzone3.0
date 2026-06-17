@@ -1,3 +1,6 @@
+/**
+ * Implementación JSON del movieModel (misma interfaz que PostgreSQL).
+ */
 const { readCollection, writeCollection, nextId, nowIso } = require('./jsonDb');
 
 async function findAll() {

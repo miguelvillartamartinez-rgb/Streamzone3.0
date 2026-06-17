@@ -1,7 +1,12 @@
 /**
- * Comprobación ligera de administrador vía cabecera x-user-id.
- * Sin JWT la cabecera puede falsificarse; la restricción principal en UI
- * y esta capa son defensa en profundidad hasta implementar autenticación real.
+ * Autorización básica de administrador para gestión de catálogo.
+ *
+ * Lee la cabecera x-user-id (enviada por el interceptor Angular) y comprueba en BD
+ * que el email del usuario sea admin@gmail.com.
+ *
+ * LIMITACIÓN: no sustituye JWT. Sin token firmado, un cliente puede falsificar x-user-id.
+ * Es defensa en profundidad junto con adminGuard y ocultación de UI en el frontend.
+ * La autenticación fuerte (JWT + roles) queda como mejora futura del TFG.
  */
 const userModel = require('../models/userModel');
 
