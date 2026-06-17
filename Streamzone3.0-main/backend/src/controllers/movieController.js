@@ -1,5 +1,6 @@
 const movieModel = require('../models/movieModel');
 const { parseMovieInput, parseManualMovieInput } = require('../utils/movieValidation');
+const { assertAdminRequest } = require('../utils/adminAuth');
 
 async function getAllMovies(req, res) {
   try {
@@ -79,6 +80,14 @@ async function createOrGetMovie(req, res) {
 }
 
 async function createManualMovie(req, res) {
+  const adminCheck = await assertAdminRequest(req);
+  if (!adminCheck.allowed) {
+    return res.status(adminCheck.status).json({
+      success: false,
+      message: adminCheck.message,
+    });
+  }
+
   const validation = parseManualMovieInput(req.body);
   if (!validation.valid) {
     return res.status(400).json({
@@ -106,6 +115,14 @@ async function createManualMovie(req, res) {
 }
 
 async function deleteMovie(req, res) {
+  const adminCheck = await assertAdminRequest(req);
+  if (!adminCheck.allowed) {
+    return res.status(adminCheck.status).json({
+      success: false,
+      message: adminCheck.message,
+    });
+  }
+
   const movieId = Number(req.params.id);
 
   if (!Number.isInteger(movieId) || movieId <= 0) {

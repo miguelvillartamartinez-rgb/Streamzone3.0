@@ -17,7 +17,7 @@
           💡 Activa API para buscar más películas
         </span>
       </div>
-      <button class="menu-btn" routerLink="/alta-pelicula">
+      <button *ngIf="esAdmin" class="menu-btn" routerLink="/alta-pelicula">
         <span class="btn-icon">➕</span>
         <span class="btn-text">Añadir película</span>
       </button>
@@ -256,7 +256,8 @@
 
         <div *ngIf="!cargandoManuales && peliculasManualesFiltradas.length === 0 && !errorManuales" class="sin-resultados-busqueda">
           <div class="sin-resultados-content">
-            <p class="sin-resultados-sugerencia">Aún no hay películas manuales. Usa «Añadir película» para crear una.</p>
+            <p class="sin-resultados-sugerencia" *ngIf="esAdmin">Aún no hay películas manuales. Usa «Añadir película» para crear una.</p>
+            <p class="sin-resultados-sugerencia" *ngIf="!esAdmin">Aún no hay películas manuales en el catálogo.</p>
           </div>
         </div>
       </section>

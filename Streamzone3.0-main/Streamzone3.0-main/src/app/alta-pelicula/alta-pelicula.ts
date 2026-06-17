@@ -1,9 +1,11 @@
-import { ChangeDetectorRef, Component } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { MoviesApiService } from '../services/movies-api.service';
 import { DEMO_VIDEO_URL } from '../config/local-playback.config';
+import { AuthService } from '../auth';
+import { isAdminUser } from '../utils/admin-user';
 
 @Component({
   selector: 'app-alta-pelicula',
@@ -12,7 +14,7 @@ import { DEMO_VIDEO_URL } from '../config/local-playback.config';
   templateUrl: './alta-pelicula.html',
   styleUrl: './alta-pelicula.css',
 })
-export class AltaPelicula {
+export class AltaPelicula implements OnInit {
   title = '';
   overview = '';
   releaseDate = '';
@@ -27,11 +29,23 @@ export class AltaPelicula {
 
   constructor(
     private moviesApi: MoviesApiService,
+    private authService: AuthService,
     private router: Router,
     private cdr: ChangeDetectorRef
   ) {}
 
+  ngOnInit() {
+    if (!isAdminUser(this.authService.getUser())) {
+      this.router.navigate(['/home']);
+    }
+  }
+
   onSubmit() {
+    if (!isAdminUser(this.authService.getUser())) {
+      this.router.navigate(['/home']);
+      return;
+    }
+
     const trimmedTitle = this.title.trim();
 
     if (!trimmedTitle) {

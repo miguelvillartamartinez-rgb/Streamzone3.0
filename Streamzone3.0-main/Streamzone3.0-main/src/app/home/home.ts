@@ -10,6 +10,7 @@ import { WatchLaterApiService } from '../services/watch-later-api.service';
 import { toAddMovieListPayload, buildPosterUrl } from '../services/api-movie.helper';
 import { SessionUser, ApiMovie } from '../models/backend-api.models';
 import { MoviesApiService } from '../services/movies-api.service';
+import { isAdminUser } from '../utils/admin-user';
 
 @Component({
   selector: 'app-home',
@@ -481,7 +482,7 @@ export class Home implements OnInit {
   }
 
   get esAdmin(): boolean {
-    return this.user?.email?.toLowerCase() === 'admin@gmail.com';
+    return isAdminUser(this.user);
   }
 
   eliminarPeliculaManual(pelicula: ApiMovie) {
