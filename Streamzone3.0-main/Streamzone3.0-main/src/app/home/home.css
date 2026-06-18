@@ -598,11 +598,15 @@
 }
 
 .imagen-large {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
   transition: transform 0.5s ease;
+  z-index: 1;
+  pointer-events: none;
 }
 
 .imagen-card:hover .imagen-large {
@@ -622,6 +626,8 @@
   opacity: 0;
   transition: opacity 0.3s ease;
   backdrop-filter: blur(2px);
+  z-index: 10;
+  pointer-events: none;
 }
 
 .imagen-card:hover .imagen-overlay {
@@ -643,6 +649,9 @@
   transition: all 0.3s ease;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
   padding-left: 4px;
+  pointer-events: auto;
+  position: relative;
+  z-index: 1;
 }
 
 .imagen-play-btn:hover {
@@ -674,9 +683,10 @@
   align-items: center;
   justify-content: center;
   transition: all 0.3s ease;
-  z-index: 12;
+  z-index: 20;
   padding: 0;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  pointer-events: auto;
 }
 
 /* Botón de reloj "Ver Más Tarde" */
@@ -748,15 +758,11 @@
   font-size: 18px;
   border-color: rgba(229, 9, 20, 0.35);
   background: rgba(20, 20, 20, 0.75);
-  z-index: 13;
+  z-index: 21;
 }
 
 .imagen-card-manual-admin .imagen-nombre {
   padding-right: 52px;
-}
-
-.imagen-card-manual .imagen-overlay {
-  z-index: 5;
 }
 
 .manual-delete-btn:hover {
@@ -782,6 +788,8 @@
   padding: 20px 16px 16px;
   text-align: center;
   transition: all 0.3s ease;
+  z-index: 15;
+  pointer-events: none;
 }
 
 .imagen-card:hover .imagen-nombre {
